@@ -1,0 +1,15 @@
+# 相依套件與建置結果
+node_modules/
+dist/
+release/
+
+# 作業系統與編輯器
+.DS_Store
+.claude/
+
+# 本機的參考資料（有版權或個人資料，不公開）：NA28 的 PDF、別人的參考表、本機下載的經文原始檔
+*.pdf
+/data/
+
+# 使用者自己的文件
+*.verse

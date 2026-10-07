@@ -1,0 +1,174 @@
+:root { --paper: #fff; --ink: #111; --desk: #e9e9ec; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--desk); font-family: -apple-system, "PingFang TC", sans-serif; color: var(--ink); }
+.topbars { position: sticky; top: 0; z-index: 10; }
+.toolbar { position: static; z-index: 10; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #ccc; flex-wrap: wrap; }
+.toolbar button, .toolbar select { font: inherit; padding: 3px 10px; }
+.toolbar .spacer { flex: 1; }
+.toolbar .warn { color: #b00020; font-size: 13px; }
+.statusbar { position: fixed; bottom: 0; left: 0; right: 0; padding: 4px 12px; background: #fafafa; border-top: 1px solid #ccc; font-size: 12px; display: flex; gap: 16px; }
+.desk { box-sizing: border-box; min-width: 100%; width: max-content; padding: 16px 16px 48px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; transform-origin: top center; }
+/* 用 auto 邊界置中：頁面比視窗寬時從左邊開始、可以捲動（align-items:center 會讓左半邊跑到螢幕外面捲不到） */
+.desk > .sheet { margin-left: auto; margin-right: auto; }
+.page { position: relative; background: var(--paper); box-shadow: 0 1px 6px rgba(0,0,0,.25); overflow: hidden; flex: none; }
+.content { position: absolute; }
+.title { position: absolute; left: 0; top: 0; font-size: 12pt; }
+.cell { white-space: pre-wrap; overflow-wrap: anywhere; font-variant-ligatures: normal; }
+.cell sup.verse { font-size: .62em; vertical-align: super; line-height: 0; margin-right: .26em; }
+.cell .anchor { display: inline-block; width: 0; height: 0; }
+.row { position: absolute; }
+.row.tall { outline: 1.5px solid #d00; }
+.rowtext { position: absolute; }
+svg.tree { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.screen-only { }
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  .topbars { display: none !important; }
+  body { background: #fff; }
+  .toolbar, .statusbar, .screen-only { display: none !important; }
+  .desk { width: auto !important; min-width: 0 !important; padding: 0 !important; gap: 0; transform: none !important; display: block; }
+  .page { box-shadow: none; break-after: page; page-break-after: always; }
+  .page:last-child { break-after: auto; page-break-after: auto; }
+  .row.tall { outline: none; }
+}
+.sheet { position: relative; flex: none; }
+.sheet .page { position: absolute; left: 0; box-shadow: 0 1px 6px rgba(0,0,0,.25); overflow: visible; }
+.sheet .title { position: absolute; font-size: 12pt; }
+.sheet .row { position: absolute; }
+.editor { outline: none; }
+.editor .ProseMirror { outline: none; white-space: pre-wrap; overflow-wrap: anywhere; }
+.editor p, .cell p { margin: 0; }
+.cell sup.verse.hid, .editor sup.verse.hid { color: #bbb; }
+.debug { position: fixed; right: 12px; bottom: 36px; width: 300px; max-height: 300px; overflow: auto; background: #fffdf2; border: 1px solid #cc9; padding: 8px; font-size: 12px; z-index: 20; }
+.debug ol { margin: 4px 0 0; padding-left: 0; list-style: none; }
+@media print {
+  .sheet .page { box-shadow: none; }
+  .debug { display: none; }
+  .cell sup.verse.hid, .editor sup.verse.hid { color: transparent; }
+}
+.editor:hover { background: rgba(0,100,255,.04); }
+.editor:focus-within { background: rgba(0,100,255,.07); }
+.sheet { cursor: text; }
+.toolbar .sep { width: 1px; height: 18px; background: #ccc; }
+.gutter { position: absolute; left: -9mm; top: 0; width: 7mm; text-align: right; font: 9px/1.8 -apple-system, sans-serif; color: #aaa; cursor: pointer; user-select: none; padding-right: 1mm; }
+.gutter:hover, .gutter.on { color: #0a64ff; }
+.rowsel { position: absolute; left: -2mm; right: -2mm; top: -.4mm; bottom: -.4mm; background: rgba(10,100,255,.10); pointer-events: none; border-radius: 1mm; }
+.hit { cursor: pointer; pointer-events: stroke; }
+svg.tree { pointer-events: none; }
+.panel { position: fixed; right: 0; top: 41px; bottom: 26px; width: 300px; overflow: auto; background: #fafafa; border-left: 1px solid #ccc; padding: 10px; font-size: 12px; z-index: 15; }
+.panel h4 { margin: 0 0 8px; }
+.panel section { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e3e3e3; }
+.panel .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.panel input[type=text], .panel input:not([type]) { width: 100%; }
+.panel table { width: 100%; margin-top: 6px; border-collapse: collapse; }
+.panel td { padding: 2px 3px; vertical-align: middle; }
+.panel td.pv { color: #555; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.panel .labin { width: 60px; }
+.panel tr.pending { background: #fff6c2; }
+.panel .relhead { display: flex; gap: 4px; margin-bottom: 4px; }
+.panel .hint { color: #888; }
+.modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 50; display: flex; align-items: center; justify-content: center; }
+.modal { background: #fff; padding: 16px 20px; border-radius: 8px; min-width: 320px; max-width: 480px; box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+.modal h3 { margin: 0 0 10px; font-size: 15px; }
+.modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+.modal button.primary { background: #0a64ff; color: #fff; border: 1px solid #0a64ff; border-radius: 4px; }
+.sheet .row { pointer-events: none; }
+.sheet .row > .gutter, .sheet .row > .editor, .sheet .row > .rowtext { pointer-events: auto; }
+@media print {
+  .editor:hover, .editor:focus-within { background: none; }
+  .rowsel, .gutter, .hit { display: none; }
+}
+.toolbar.sub {  font-size: 13px; background: #f4f4f6; }
+.swatches { display: inline-flex; gap: 3px; align-items: center; }
+.toolbar button.sw { width: 18px; height: 18px; padding: 0; border: 1px solid #999; border-radius: 3px; }
+.panel { top: var(--topH, 82px); }
+.statusbar button { font-size: 12px; padding: 0 8px; }
+.modal.wide { max-width: 560px; width: 560px; max-height: 88vh; overflow: auto; }
+.modal .grid { display: grid; grid-template-columns: 170px 1fr; gap: 8px 10px; align-items: center; font-size: 13px; }
+.modal .hint, .panel .hint { color: #888; font-size: 12px; }
+.modal h4 { margin: 14px 0 6px; font-size: 13px; }
+.modal .refrow { display: flex; gap: 8px; align-items: center; font-size: 13px; margin-bottom: 6px; }
+.modal .errs { color: #b00020; font-size: 12px; margin: 10px 0 0; padding-left: 18px; }
+.modal .issues { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; font-size: 13px; }
+.modal .issues li { padding: 4px 6px; border-bottom: 1px solid #eee; cursor: pointer; }
+.modal .issues li:hover { background: #eef4ff; }
+.modal .issues li.block { color: #b00020; }
+.narrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 12px; background: #fff3cd; border-bottom: 1px solid #e0c36a; font-size: 13px; }
+.layer { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; }
+.layer > * { pointer-events: auto; }
+.layer > svg.tree { pointer-events: none; }
+@media print { .narrow { display: none !important; } }
+@media print { .sheet { overflow: hidden; } }
+@media print { .sheet .page, .sheet .page:last-child { break-after: auto; page-break-after: auto; } }
+
+.sheet { box-shadow: 0 1px 6px rgba(0,0,0,.25); background: #fff; }
+.sheet .page { box-shadow: none; border-bottom: 1px dashed #b8b8c0; }
+.sheet .page:last-of-type { border-bottom: none; }
+@media print { .sheet { box-shadow: none; } .sheet .page { border: none; } }
+.modal .modes { display: flex; flex-direction: column; gap: 4px; font-size: 13px; margin-bottom: 8px; }
+.modal table.pv { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+.modal table.pv th { text-align: left; color: #666; border-bottom: 1px solid #ccc; padding: 2px 4px; }
+.modal table.pv td { padding: 3px 4px; border-bottom: 1px solid #eee; vertical-align: top; }
+.modal table.pv tr.has { background: #fff6e0; }
+.modal table.pv .old { color: #a35b00; margin-right: 6px; }
+.modal .leftover { background: #fff0f0; border: 1px solid #f0c0c0; padding: 6px 10px; font-size: 12px; margin-bottom: 8px; }
+.modal .leftover ul { margin: 4px 0 6px; padding-left: 18px; }
+.editor.refcell { box-shadow: inset 1px 0 0 #ddd; }
+@media print { .editor, .editor.refcell, .editor .ProseMirror { box-shadow: none !important; outline: none !important; border: none !important; } }
+.reltable table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+.reltable th { text-align: left; color: #666; font-weight: 500; padding: 2px 4px; border-bottom: 1px solid #ccc; }
+.reltable td { padding: 2px 4px; }
+.reltable input { width: 100%; }
+.reltable input.mk { width: 56px; }
+.reltable .mv button { padding: 0 6px; }
+.modal.reltable { width: 640px; max-width: 640px; }
+
+/* 整節對照：節號用 CSS 變數 --vtag 畫在段落前面（量測用的隱藏元素與編輯器共用同一條規則） */
+.vcell p::before { content: var(--vtag); font-size: .62em; vertical-align: super; line-height: 0; margin-right: .26em; }
+.vblock { position: absolute; display: flex; flex-direction: column; }
+.vblock > .editor { position: static !important; }
+.modal.backups { width: 720px; max-width: 720px; }
+.bk-body { display: flex; gap: 14px; min-height: 260px; }
+.bk-left { width: 250px; display: flex; flex-direction: column; gap: 6px; }
+.bk-left .hint { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bk-list { list-style: none; margin: 0; padding: 0; overflow: auto; max-height: 300px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; }
+.bk-list li { padding: 5px 8px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
+.bk-list li:hover { background: #eef4ff; }
+.bk-list li.on { background: #d6e6ff; }
+.bk-list small { color: #888; }
+.bk-right { flex: 1; font-size: 13px; min-width: 0; }
+.bk-lines { margin: 6px 0; padding-left: 20px; font-size: 12px; color: #333; max-height: 260px; overflow: auto; }
+body.dragging { user-select: none; cursor: grabbing; }
+body.dragging * { cursor: grabbing !important; }
+.dropline { position: fixed; height: 3px; background: #0a64ff; border-radius: 2px; pointer-events: none; z-index: 40; }
+.dropline i { position: absolute; left: -4px; top: -3px; width: 9px; height: 9px; border-radius: 50%; background: #0a64ff; }
+.dragghost { position: fixed; z-index: 41; pointer-events: none; font-size: 12px; background: #0a64ff; color: #fff; padding: 2px 8px; border-radius: 10px; }
+.dragghost.no { background: #b00020; }
+.gutter { cursor: grab; }
+.fragcell { position: absolute; overflow: hidden; cursor: text; pointer-events: auto; }
+.sheet .row.split { outline: 1px dashed rgba(0,0,0,.12); }
+.longedit { position: fixed; left: 50%; top: 20%; transform: translateX(-50%); width: min(640px, 90vw); background: #fff; border: 1px solid #99a; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.3); padding: 10px 12px; z-index: 45; }
+.longedit-head { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 13px; }
+.longedit-head .hint { flex: 1; color: #888; font-size: 12px; }
+@media print { .sheet .row.split { outline: none; } .fragcell { cursor: auto; } }
+
+.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.panel-head h4 { margin: 0; }
+.panel button.primary { background: #0a64ff; color: #fff; border: 1px solid #0a64ff; border-radius: 4px; padding: 3px 14px; }
+
+.helplink { font-size: 12px; font-weight: 400; color: #0a64ff; text-decoration: none; margin-left: 8px; cursor: pointer; }
+.helplink:hover { text-decoration: underline; }
+.panel-head h4 { display: flex; align-items: baseline; }
+
+.bible-prev { font-size: 13px; background: #fafafc; border: 1px solid #e3e3ea; border-radius: 6px; padding: 8px 10px; margin-top: 8px; }
+.bible-prev .bp-row { margin: 6px 0; padding-bottom: 6px; border-bottom: 1px dashed #e3e3ea; }
+.bible-prev .en { color: #444; font-family: "Gentium Plus", serif; }
+.bible-prev .warnings { margin: 6px 0 0; padding-left: 4px; list-style: none; color: #8a5a00; }
+.langrow { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+.langrow label.off { color: #aaa; }
+
+.credits { position: absolute; font-size: 6.5pt; color: #777; line-height: 1.3; pointer-events: none; }
+
+.webnote { display: flex; gap: 8px; align-items: center; padding: 6px 12px; background: #e8f1ff; border-bottom: 1px solid #b9d0f5; font-size: 13px; }
+.webnote span { flex: 1; }
+@media print { .webnote { display: none !important; } }

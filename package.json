@@ -1,0 +1,44 @@
+{
+  "name": "verse-analyser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "經文結構分析 App",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "electron": "vite build && electron .",
+    "package": "node scripts/package.mjs",
+    "icon": "python3 scripts/make_icon.py",
+    "build:public": "VITE_PUBLIC=1 vite build",
+    "check:public": "node scripts/check_public_build.mjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "electron": "^44.5.1",
+    "fast-check": "^4.10.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "@fontsource/gentium-plus": "^5.3.0",
+    "immer": "^11.1.21",
+    "prosemirror-commands": "^1.7.2",
+    "prosemirror-model": "^1.25.12",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.42.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "productName": "經文結構分析",
+  "license": "MIT",
+  "repository": null
+}

@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>經文結構分析 — 使用說明</title>
+<link rel="icon" type="image/png" href="./favicon.png" />
+<style>
+  :root { --ink: #1d1d1f; --muted: #6b6b73; --line: #e2e2e8; --accent: #0a64ff; --bg: #fff; --soft: #f5f7fb; --warn: #fff6dc; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+  body { margin: 0; font: 15px/1.7 -apple-system, "PingFang TC", "Helvetica Neue", sans-serif; color: var(--ink); background: var(--bg); }
+  .layout { display: flex; min-height: 100vh; }
+  nav { width: 250px; flex: none; position: sticky; top: 0; height: 100vh; overflow: auto; padding: 18px 14px; background: var(--soft); border-right: 1px solid var(--line); }
+  nav h1 { font-size: 16px; margin: 0 0 10px; }
+  nav input { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 13px; margin-bottom: 10px; }
+  nav ol { list-style: none; margin: 0; padding: 0; }
+  nav li a { display: block; padding: 4px 8px; border-radius: 6px; color: var(--ink); text-decoration: none; font-size: 13.5px; }
+  nav li a:hover { background: #e6edfb; }
+  nav li a.on { background: var(--accent); color: #fff; }
+  main { flex: 1; max-width: 860px; padding: 24px 36px 80px; }
+  section { margin-bottom: 44px; }
+  h2 { font-size: 22px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 17px; margin: 22px 0 6px; }
+  p { margin: 8px 0; }
+  ul, ol.steps { margin: 6px 0 10px; padding-left: 24px; }
+  li { margin: 3px 0; }
+  kbd { display: inline-block; padding: 0 6px; border: 1px solid #c8c8d0; border-bottom-width: 2px; border-radius: 5px; background: #fafafc; font: 12.5px/1.6 ui-monospace, Menlo, monospace; white-space: nowrap; }
+  .btn { display: inline-block; padding: 0 7px; border: 1px solid #b9b9c2; border-radius: 5px; background: #fff; font-size: 13px; white-space: nowrap; }
+  .tip, .warn, .note { margin: 12px 0; padding: 9px 13px; border-radius: 8px; font-size: 14px; }
+  .tip { background: #eaf3ff; border-left: 4px solid var(--accent); }
+  .warn { background: var(--warn); border-left: 4px solid #e0a800; }
+  .note { background: var(--soft); border-left: 4px solid #aab; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  details { margin: 8px 0; border: 1px solid var(--line); border-radius: 8px; padding: 2px 12px; }
+  details[open] { background: #fcfcfe; }
+  summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+  details > :not(summary) { margin-bottom: 10px; }
+  .sym { display: inline-block; min-width: 18px; text-align: center; font-weight: 700; }
+  .hide { display: none !important; }
+  .nores { color: var(--muted); padding: 10px 0; }
+  @media (max-width: 760px) { nav { display: none; } main { padding: 18px; } }
+  @media print { nav { display: none; } main { max-width: none; } details { border: none; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <h1>使用說明</h1>
+  <input id="q" type="search" placeholder="搜尋說明…（例如：括號、經節、匯出）" />
+  <ol id="toc"></ol>
+</nav>
+<main>
+
+<section id="web" data-title="網頁版">
+  <h2>網頁版（用瀏覽器直接使用）</h2>
+  <p>這個 app 也有網頁版，不需要安裝，用瀏覽器打開網址就能用。功能和桌面版幾乎一樣，差別在檔案和輸出：</p>
+  <table>
+    <tr><th>項目</th><th>網頁版</th></tr>
+    <tr><td>你的文件放在哪裡</td><td><b>只存在你的電腦</b>，不會上傳到任何伺服器。內建經文（和合本、BSB、SBLGNT）是網頁的一部分，不需要另外連網取得。</td></tr>
+    <tr><td>存檔／開啟</td><td>Chrome、Edge、Opera：可以選一個 <code>.verse</code> 檔案，之後「存檔」直接存回同一個檔案（也有「另存新檔」）。Safari、Firefox：不能直接存回檔案，「存檔」會<b>下載</b>一個新的 <code>.verse</code>（每次都是新檔），「開啟」要自己去下載資料夾選檔。<b>建議用 Chrome 或 Edge。</b></td></tr>
+    <tr><td>匯出 PDF／列印</td><td>會開啟瀏覽器的<b>列印視窗</b>：目的地選「另存為 PDF」，<b>邊界選「無」</b>，<b>縮放 100%</b>，並取消勾選「頁首和頁尾」。紙張是 A4。</td></tr>
+    <tr><td>自動存檔與復原</td><td>有未存的變更時，每隔幾秒（可以在偏好設定改）把內容暫存在這個瀏覽器裡；如果分頁當掉或不小心關掉，下次打開會問你要不要恢復。關閉或重新整理分頁前，有未存的變更會跳出瀏覽器的確認。</td></tr>
+    <tr><td>備份版本</td><td>沒有（那是桌面版的功能）。請自己定期存檔，或用「另存新檔」留幾個版本。</td></tr>
+    <tr><td>偏好設定、全域關係表</td><td>存在這個瀏覽器裡（localStorage）。換瀏覽器、換電腦、或清除網站資料就會不見，需要重設。</td></tr>
+  </table>
+  <div class="warn"><b>清除瀏覽器的網站資料、用無痕視窗，會讓暫存的復原檔、偏好設定一起消失。</b>重要的分析請記得存成 <code>.verse</code> 檔案，並放在你自己的備份裡。</div>
+  <div class="note">網頁版不含範例文件。想看操作範例，用「新增…→從聖經帶入經文」帶入一段經文就可以開始。</div>
+</section>
+
+<section id="install" data-title="安裝與開啟 app">
+  <h2>安裝與開啟 app</h2>
+  <ol class="steps">
+    <li>在專案資料夾執行 <code>npm run package</code>，會在 <code>release/經文結構分析-darwin-arm64/</code> 產生 <b>經文結構分析.app</b>。</li>
+    <li>把它拖進「應用程式」資料夾，之後<b>雙擊</b>就能開啟，不需要終端機或開發伺服器。</li>
+  </ol>
+  <div class="warn"><b>第一次開啟如果被擋下</b>（例如把 app 用 AirDrop、雲端硬碟或壓縮檔傳到別台 Mac 之後）：這個 app 沒有 Apple 開發者簽章，只有臨時簽章，所以 macOS 會提示「無法驗證開發者」。請在 app 上<b>按右鍵 → 打開</b>，再按一次「打開」，之後就不會再問。在建立它的那台 Mac 上直接開通常不會被擋。</div>
+  <ul>
+    <li>打包好的 app 和開發模式（<code>npm run dev</code>、<code>npm run electron</code>）<b>各用各的</b>使用者資料夾：偏好設定、全域關係表、備份、復原檔都不共用。你的 <code>.verse</code> 文件檔案本身不受影響，可以用「開啟」在任何一邊打開。</li>
+    <li>app 約 300MB（內含完整的 Electron 執行環境）。</li>
+    <li>app 圖示是專案裡的 <code>assets/icon.icns</code>（括號樹的圖案）。想換成自己的圖，改 <code>scripts/make_icon.py</code> 後執行 <code>npm run icon</code>，再重新 <code>npm run package</code>。</li>
+  </ul>
+</section>
+
+<section id="quickstart" data-title="快速上手">
+  <h2>快速上手</h2>
+  <p>這個 app 用來做經文的「括號樹」結構分析：把經文一行一行排好，用括號把有關係的行包起來，再標上它們的邏輯關係（因果、目的、解釋…），最後匯出成 A4 的 PDF。</p>
+  <ol class="steps">
+    <li><b>打字或貼上經文。</b>在頁面上直接打字（可以用注音等輸入法），或貼上一段文字。貼上多行時，每一行都會成為獨立的一行。</li>
+    <li><b>斷行。</b>在想斷開的地方按 <kbd>Enter</kbd>，一行變兩行。要把兩行接回去，在下一行的行首按 <kbd>Backspace</kbd>。</li>
+    <li><b>調整縮排。</b>按 <kbd>Tab</kbd> 縮排一階，<kbd>⇧ Tab</kbd> 退回一階（分析欄裡）。縮排只是文字的位置，不影響括號。</li>
+    <li><b>建立括號。</b>點左邊的行號選取相鄰的幾行，按工具列的「建立括號」或 <kbd>⌘G</kbd>。</li>
+    <li><b>指定關係。</b>點括號的垂直線，右邊會出現面板，點關係的名稱（例如「因果」），設好主句，按「完成」。</li>
+    <li><b>存檔。</b>按 <kbd>⌘S</kbd>。</li>
+    <li><b>匯出。</b>按「匯出 PDF」，如果還有沒做完的地方，會先列給你看。</li>
+  </ol>
+  <div class="tip">做錯了隨時按 <kbd>⌘Z</kbd> 復原，<kbd>⇧⌘Z</kbd> 重做。每一個操作（建立括號、移動、貼上、改關係…）都是一個復原步驟。</div>
+</section>
+
+<section id="concepts" data-title="基本概念">
+  <h2>基本概念</h2>
+  <table>
+    <tr><th>名詞</th><th>意思</th></tr>
+    <tr><td>行</td><td>頁面上的一行文字。每一行可以有自己的縮排、對照欄文字。</td></tr>
+    <tr><td>括號</td><td>把 2 個以上相鄰的項目框在一起。括號左邊那條直角的線就是它。括號裡面可以再有括號。</td></tr>
+    <tr><td>項目</td><td>「行」和「括號」的統稱。移動、選取、建立括號都是對項目做的。</td></tr>
+    <tr><td>關係</td><td>括號裡各項目之間的邏輯關係，例如因果、目的、解釋。一個括號可以同時有好幾個關係（顯示成「進/*」這樣）。</td></tr>
+    <tr><td>主句</td><td>有主次之分的關係裡，被強調的那一個項目。它的標記用粗體；如果主句沒有標記文字，就顯示「*」。</td></tr>
+    <tr><td>分析欄</td><td>括號樹和縮排所在的那一欄，也就是你主要在打字、分析的那一欄。</td></tr>
+    <tr><td>對照欄</td><td>放在分析欄右邊的欄，例如譯文。最多兩個。</td></tr>
+    <tr><td>閱讀順序</td><td>由上到下的行順序。括號一定涵蓋「連續」的幾行，所以順序就是經文順序。</td></tr>
+  </table>
+  <h3>畫面上的提示符號（列印和 PDF 不會出現）</h3>
+  <table>
+    <tr><td><span class="sym" style="color:#e6a700">?</span> 黃色問號</td><td>這個括號還沒指定關係，或某個標記被設成「待判定」。</td></tr>
+    <tr><td><span class="sym" style="color:#d00">!</span> 紅色驚嘆號</td><td>這個關係需要主句，但目前沒有任何項目被設成主句（缺主句）。</td></tr>
+    <tr><td><span class="sym" style="color:#06c">●</span> 藍色小點</td><td>這個標記是你自己改過的文字，之後切換主次時它不會自動更新。</td></tr>
+    <tr><td><span class="sym" style="color:#999">灰色小數字</span></td><td>隱藏的經節錨點，用來保存經節歸屬，不列印（見「經節」）。</td></tr>
+    <tr><td>紅框</td><td>整節對照的譯文區塊太高放不進一頁。</td></tr>
+    <tr><td>頁面之間的虛線</td><td>A4 的換頁處。</td></tr>
+  </table>
+</section>
+
+<section id="editing" data-title="輸入與編輯行">
+  <h2>輸入與編輯行</h2>
+  <table>
+    <tr><th>想做什麼</th><th>怎麼做</th></tr>
+    <tr><td>斷行</td><td>游標放在想斷開的地方，按 <kbd>Enter</kbd>。游標前的字留在上一行，游標後的字到新的一行（連空白都原封不動）。</td></tr>
+    <tr><td>合併上一行</td><td>游標在行首時按 <kbd>Backspace</kbd>。兩行的文字直接接起來，不會多出任何字元。</td></tr>
+    <tr><td>合併下一行</td><td>游標在行尾時按 <kbd>Delete</kbd>（Mac 的 <kbd>fn Delete</kbd>）。</td></tr>
+    <tr><td>縮排</td><td><kbd>Tab</kbd> 縮排一階、<kbd>⇧ Tab</kbd> 退一階，範圍 0 到 12 階。每階的寬度可以在「版面設定」改。</td></tr>
+    <tr><td>強制換頁</td><td><kbd>⌘ Enter</kbd>：切換「這一行之前強制換頁」。</td></tr>
+    <tr><td>上下行之間移動</td><td>游標在行首按 <kbd>↑</kbd>、在行尾按 <kbd>↓</kbd>，會跳到上一行或下一行。</td></tr>
+    <tr><td>貼上多行</td><td>貼上的每一行都成為獨立的一行。如果游標所在的括號已經有關係，會自動多建立一個「未指定關係」的小括號，把貼出來的行包在一起。</td></tr>
+    <tr><td>刪除行</td><td>先點左邊的行號選取，再按 <kbd>Delete</kbd> 或工具列的「刪除行」。如果那些行的對照欄有內容，會先問你要一併刪除還是併入上一行。</td></tr>
+  </table>
+  <div class="note"><b>斷行時括號怎麼辦？</b>如果這一行不在括號裡，或所在的括號還是「未指定關係」，新的一行就直接成為它的兄弟。如果所在的括號已經有關係，app 會建立一個「未指定關係」的小括號，把拆開的兩行包在裡面，原本那一行在大括號裡的標記（例如「因」）會移到小括號上，所以意思不會被縮小。</div>
+  <h3>用中文輸入法（注音）</h3>
+  <ul>
+    <li>組字的時候按 <kbd>Enter</kbd>、<kbd>Tab</kbd>、<kbd>Backspace</kbd> 都是交給輸入法處理，不會拆行、縮排或合併。</li>
+    <li>一次組字（從開始打到選字完成）是<b>一個</b>復原步驟。連續打字也會合併成一個步驟，停頓超過 1 秒、移動游標或做了別的操作才會分開。</li>
+    <li>組字中按 <kbd>⌘Z</kbd> 不會作用，等選字完成再復原。</li>
+    <li>組字中點別的格子，目前組字的內容會先確定，再切換過去。</li>
+  </ul>
+</section>
+
+<section id="selecting" data-title="選取行與括號">
+  <h2>選取行與括號</h2>
+  <p>要建立括號、移動、刪除，都要先「選取項目」。<b>選取不是在文字裡拖曳</b>（那是選文字，用來設粗體、底線），而是點下面這些地方：</p>
+  <table>
+    <tr><th>想選什麼</th><th>怎麼做</th></tr>
+    <tr><td>一行</td><td>點那一行最左邊的灰色<b>行號</b>。那一行會出現淡藍色底。</td></tr>
+    <tr><td>連續幾行</td><td>點第一個行號，按住 <kbd>⇧</kbd> 再點最後一個行號。</td></tr>
+    <tr><td>一個括號</td><td>點它的<b>垂直線</b>（線會變藍），右邊會出現關係面板。</td></tr>
+    <tr><td>加選／取消加選</td><td>按住 <kbd>⌘</kbd> 再點行號，或點括號的垂直線。可以行和括號混著選。</td></tr>
+    <tr><td>取消選取</td><td>按 <kbd>Esc</kbd>，或按關係面板的「完成」。</td></tr>
+  </table>
+  <div class="tip">游標在某一行的文字裡、而沒有另外選取時，括號相關的快捷鍵（⌥↑、⌘[ 等）會作用在「游標所在的那一行」。</div>
+</section>
+
+<section id="brackets" data-title="括號">
+  <h2>括號</h2>
+  <h3>建立括號</h3>
+  <p>選取 2 個以上<b>相鄰</b>、而且在<b>同一個層級</b>的項目（都在最上層，或都在同一個括號裡），按「建立括號」或 <kbd>⌘G</kbd>。新括號依原順序包住它們。</p>
+  <ul>
+    <li>不能把父括號的<b>全部</b>子項都包起來（那等於什麼都沒變）。</li>
+    <li>條件不符時，畫面最底下的狀態列會說明原因，例如「選取的項目必須相鄰」「選取的項目必須在同一個括號下」。</li>
+    <li>新括號是「未指定關係」（黃色 ?）。被包進去的項目原本在父括號裡的標記會被拿掉（有標記時狀態列會告訴你拿掉了哪些），新括號在父括號裡的標記是「待判定」。</li>
+  </ul>
+  <h3>在已經有的括號上再建一個括號</h3>
+  <details open><summary>括號 ＋ 一行：1、2 已經是一個括號，要把第 3 行一起包起來</summary>
+    <ol class="steps">
+      <li>點「1、2 那個括號」的垂直線（線變藍）。</li>
+      <li>按住 <kbd>⌘</kbd>，再點第 3 行的行號。</li>
+      <li>按「建立括號」或 <kbd>⌘G</kbd>。</li>
+    </ol>
+    <p>為什麼不能直接選行號 1、2、3？因為 1、2 在括號裡面，3 在外面，不在同一個層級。要把「1、2 的括號」當成一個整體項目來選。</p>
+  </details>
+  <details open><summary>括號 ＋ 括號：1&amp;2 一組、3&amp;4 一組，要把兩組包在一起</summary>
+    <ol class="steps">
+      <li>點第一個括號的垂直線。</li>
+      <li>按住 <kbd>⌘</kbd>，點第二個括號的垂直線。兩個括號的線都變藍。</li>
+      <li>按「建立括號」或 <kbd>⌘G</kbd>。</li>
+    </ol>
+  </details>
+  <h3>解除括號</h3>
+  <p>點括號的垂直線，按「解除括號」或 <kbd>⇧⌘G</kbd>。括號裡的項目放回原位。如果這個括號在父括號裡<b>有標記</b>（例如「因」），會跳出視窗讓你選：標記要交給哪一個子項（其他子項變成待判定），或全部標成待判定。app 不會預先幫你選，因為那會默默決定分析的意思。</p>
+  <h3>移動</h3>
+  <table>
+    <tr><th>想做什麼</th><th>怎麼做</th></tr>
+    <tr><td>上移、下移</td><td><kbd>⌥↑</kbd>、<kbd>⌥↓</kbd>：和同一個括號裡相鄰的兄弟交換位置，不會移出括號。標記跟著項目走。</td></tr>
+    <tr><td>併入下方相鄰的括號</td><td><kbd>⌘]</kbd>（併入上方的：<kbd>⇧⌘]</kbd>）：項目成為相鄰括號的第一個（或最後一個）子項。</td></tr>
+    <tr><td>移出括號</td><td><kbd>⌘[</kbd>：括號的第一個或最後一個子項，移到括號的前面或後面。</td></tr>
+    <tr><td>拖曳</td><td>見下面「拖曳移動」。</td></tr>
+  </table>
+  <h3>自動整理</h3>
+  <p>每個會拿掉項目的操作做完後，app 會自動整理括號：括號被搬空就刪掉；<b>只剩一個子項</b>就解除，剩下的子項接手括號的位置，並繼承括號在父括號裡的標記。</p>
+</section>
+
+<section id="relations" data-title="指定關係與標記">
+  <h2>指定關係與標記</h2>
+  <p>點括號的垂直線，右邊會出現「括號關係」面板。<b>每個按鈕按下去就已經生效</b>，每個都是一個復原步驟，所以沒有「確定／取消」。設定完按面板上的「<span class="btn">完成</span>」關閉（或按 <kbd>Esc</kbd>）。</p>
+  <table>
+    <tr><th>項目</th><th>說明</th></tr>
+    <tr><td>加入關係</td><td>點關係的名稱就加入。上面的輸入框可以打字篩選。需要主句的關係，預設最後一個子項是主句。一個括號可以加好幾個關係。</td></tr>
+    <tr><td>換成別的關係</td><td>已套用的關係旁邊的下拉選單。主句的指定盡量保留；新關係沒有主句時，主句指定會清除。你自己改過的標記文字保留。</td></tr>
+    <tr><td>排序、移除</td><td>↑ ↓ 改變多個關係顯示的先後（例如「進/*」變成「*/進」）；「移除」只移除這一個關係。移除最後一個關係，括號變回「未指定關係」。</td></tr>
+    <tr><td>設為主句</td><td>每一個分支旁邊的「主」圓點。三個以上子項時用它指定主句。</td></tr>
+    <tr><td>交換主次</td><td>只有兩個子項時出現，把主句和次要句對調。</td></tr>
+    <tr><td>改標記文字</td><td>在分支旁的輸入框改字，按 <kbd>Enter</kbd> 或點別處才會生效。改過的標記會有藍色小點。「↺」恢復成依關係表自動產生的文字。</td></tr>
+    <tr><td>待判定 ?</td><td>標記旁的「?」把這個標記標成「還沒決定」，之後再回來判斷。</td></tr>
+  </table>
+  <h3>標記怎麼顯示</h3>
+  <ul>
+    <li>有主次的關係：次要句和主句各有標記，主句用粗體；主句沒有標記文字時顯示「*」。</li>
+    <li>沒有主句的關係（以及、或者、無關係，相比預設也是）：所有分支同等，標記整個括號只印<b>一次</b>，放在垂直線旁邊的中間。</li>
+    <li>切換主次時，主句的粗體、「*」、缺主句提示會自動更新；但<b>你自己改過的標記文字不會變</b>（藍色小點提醒你）。</li>
+  </ul>
+  <div class="note">「無關係」和「未指定關係」不一樣：「無關係」是你判斷這些子句之間沒有邏輯關係，會印出「--」；「未指定關係」是還沒分析完的括號（匯出前會提醒）。</div>
+</section>
+
+<section id="verses" data-title="經節">
+  <h2>經節</h2>
+  <p>經節號不是普通的上標文字，而是有意義的「經節標記」。app 靠它記住每一段文字屬於哪一節，所以你怎麼拆行、合併、移動，它的歸屬都不會變。</p>
+  <h3>自動辨識（貼上時）</h3>
+  <ul>
+    <li>只在貼上時進行。辨識的位置有三種：行首的數字（<code>14 Καὶ…</code>）、數字緊接文字（<code>16For…</code>、<code>16神…</code>）、章:節（<code>3:16</code>）。</li>
+    <li>數字必須形成<b>連續遞增</b>的節號（14、15、16…）才會採用，至少兩個。其他數字（例如「40 晝夜」）保留成普通文字。</li>
+    <li>沒寫章的，用工具列第二列的「<b>起始章</b>」；節號從大跳回 1 時，章自動加 1。</li>
+    <li>貼上後，狀態列會顯示「辨識出 N 個經節」，旁邊有「取消經節辨識」按鈕，按下去只取消辨識、貼上的文字保留。這個按鈕只在貼上之後立刻出現。</li>
+  </ul>
+  <h3>手動</h3>
+  <ul>
+    <li><b>標為經節：</b>在文字裡選取一個數字（例如 16），按工具列第二列的「標為經節」。章會取前一個經節的章。</li>
+    <li><b>修改或移除：</b>點一下頁面上的上標節號，會跳出視窗，可以改章、節、顯示或隱藏，或「改成一般文字」「刪除標記」。</li>
+  </ul>
+  <h3>灰色的小數字是什麼？</h3>
+  <p>它是<b>隱藏的經節錨點</b>。你把某一行移到別處、或刪掉某一行之後，app 會在受影響的行首補上一個隱藏標記，記錄「這一行原本屬於第 16 節」，這樣歸屬才不會變。它只在螢幕上顯示成淡灰色，<b>不會列印</b>。app 會自動把不必要的錨點拿掉。</p>
+</section>
+
+<section id="text-marks" data-title="文字標記">
+  <h2>文字標記</h2>
+  <p>工具列第二列：<b>B</b> 粗體、<i>I</i> 斜體、<u>U</u> 底線、x² 上標、四種螢光底色、四種文字顏色、「清除標記」。快捷鍵 <kbd>⌘B</kbd> <kbd>⌘I</kbd> <kbd>⌘U</kbd>。</p>
+  <ul>
+    <li>先在文字裡選取要標記的字，再按按鈕。沒有選取時，按了之後打的字會帶這個標記。</li>
+    <li>每一格是獨立的編輯器，所以<b>不能跨行選取文字</b>。要處理好幾行，請用左邊的行號選整行。</li>
+    <li>每次標記是一個獨立的復原步驟。</li>
+  </ul>
+</section>
+
+<section id="refcols" data-title="對照欄">
+  <h2>對照欄（譯文、另一種語言）</h2>
+  <h3>新增</h3>
+  <p>工具列「<span class="btn">版面設定…</span>」→「對照欄」→「新增對照欄」。可以選語言（希臘文、英文、繁體中文）、模式、寬度、是否顯示，最多兩個。</p>
+  <table>
+    <tr><th>模式</th><th>適合什麼情況</th></tr>
+    <tr><td><b>逐行</b></td><td>每一行分析欄文字旁邊有一格。適合一行對一行。</td></tr>
+    <tr><td><b>整節</b></td><td>一節的譯文放成一個區塊，往下跨越這一節涵蓋的所有行（一行含好幾節時，幾節的譯文依序疊在同一個區塊）。內容依經節存放，所以怎麼拆行、合併都不影響。</td></tr>
+  </table>
+  <div class="note">切換模式不會刪除另一種模式的內容，兩種內容都保留。</div>
+  <h3>在格子裡打字</h3>
+  <ul>
+    <li><kbd>Enter</kbd>：移到下一行的同一欄（不會斷行）。</li>
+    <li><kbd>Tab</kbd>／<kbd>⇧ Tab</kbd>：移到下一格／上一格。</li>
+    <li>整節欄：<kbd>Enter</kbd>、<kbd>Tab</kbd> 在各節之間移動。</li>
+  </ul>
+  <h3>貼上到對照欄</h3>
+  <p>在對照欄的格子裡按 <kbd>⌘V</kbd>，<b>一律先顯示預覽視窗</b>，不會直接覆蓋：</p>
+  <ul>
+    <li><b>逐格貼上：</b>貼上的多行文字從你點的那一格開始，一行一格往下填。空白行會跳過那一格。</li>
+    <li><b>依經節對齊：</b>依貼上文字裡的經節號切開，每一節放到分析欄中「包含這一節」的第一行（整節欄則直接放進那一節）。需要分析欄有經節標記。</li>
+    <li>預覽會標出：<b>已經有內容的格子</b>（可選覆蓋、接在後面、略過）、<b>找不到對應行的經節</b>、<b>超出最後一行的文字</b>（兩者可選併入最後一行，或取消整個貼上）。</li>
+  </ul>
+  <div class="tip">一行對一行時，貼上文字的<b>換行</b>要和分析欄的行數對得上。如果兩邊拆行的方式不一樣（例如中文一節拆三行，希臘文一節一行），可以貼上後直接在格子裡修改。</div>
+</section>
+
+<section id="bible" data-title="帶入經文（和合本／BSB／SBLGNT）">
+  <h2>帶入經文（和合本／BSB／SBLGNT）</h2>
+  <p>不用自己打字或貼上經文：選好書卷和章節範圍，再決定<b>哪個語言放在分析欄、哪些放在對照欄</b>，app 會自動建立一份新文件。</p>
+  <ol class="steps">
+    <li>工具列的「新增…」選單 → 「＋ 從聖經帶入經文…」。</li>
+    <li>選<b>書卷</b>，再填起點與終點的章、節。畫面會顯示共幾節。</li>
+    <li>選語言配置：
+      <ul>
+        <li><b>分析欄</b>（一個）：中文（和合本）、英文（BSB）或希臘文（SBLGNT）。括號樹和縮排會畫在這一欄。</li>
+        <li><b>對照欄</b>（0 到 2 個）：其他語言各放一個對照欄。分析欄選的語言不能再放進對照欄。</li>
+      </ul>
+    </li>
+    <li>要用「神」字的話勾選「和合本改用『神』字」（把「上帝」換成「神」）。</li>
+    <li>預覽前三節確認後，按「建立新文件」。有未存的變更時，會先問你儲存、不儲存或取消。</li>
+  </ol>
+  <h3>常見的配置</h3>
+  <table>
+    <tr><th>想做什麼</th><th>怎麼選</th></tr>
+    <tr><td>以中文為主分析，旁邊對照英文</td><td>分析欄＝中文；對照欄＝英文</td></tr>
+    <tr><td>以希臘文為主分析（像 NA28 的傳統做法），旁邊對照中英文</td><td>分析欄＝希臘文；對照欄＝中文、英文（兩個都勾）</td></tr>
+    <tr><td>只要原文，不要對照</td><td>分析欄＝希臘文；對照欄都不勾</td></tr>
+  </table>
+  <h3>產生出來的文件</h3>
+  <ul>
+    <li>分析欄的文字是你選的語言，<b>每一節一行</b>，行首有經節標記。標題自動寫成例如「約翰福音三 14 至 21（SBLGNT、和合本、BSB）」。</li>
+    <li>每個對照欄用「<b>整節</b>」模式：每一節的譯文放成一個區塊，之後你把某一節拆成好幾行，對照欄會自動跨越這一節涵蓋的所有行。</li>
+    <li>有對照欄時，頁面預設橫向（放得下）；一個對照欄寬 30%，兩個各 22%。起始章是範圍的第一章。</li>
+    <li>用到 SBLGNT 時，文件最後一頁的下邊界會印出來源標示（見下面的授權）。</li>
+    <li>接著就照平常的方式分析：斷行、縮排、建立括號、指定關係。</li>
+  </ul>
+  <h3>內建的版本與授權</h3>
+  <table>
+    <tr><th>版本</th><th>授權</th></tr>
+    <tr><td>和合本（Chinese Union Version，1919，繁體）</td><td>公有領域。在台灣、中國大陸和大多數地區沒有版權；<b>香港聖經公會曾主張它在香港與澳門的權利</b>，使用範圍含港澳時請自行確認。這份資料帶有「」『』等新式標點、用字是「上帝」版。「和合本修訂版」等修訂版仍有版權，沒有內建。</td></tr>
+    <tr><td>Berean Standard Bible（BSB）</td><td>2023 年 4 月 30 日起，翻譯團隊把它捐贈為公有領域（CC0）。</td></tr>
+    <tr><td>SBL Greek New Testament（SBLGNT，只有新約）</td><td><b>CC BY 4.0</b>（不是公有領域）：可以自由使用，但<b>必須標示來源</b>。app 會自動把「SBL Greek New Testament © 2010 Society of Biblical Literature and Logos Bible Software, CC BY 4.0」印在最後一頁頁尾，請不要刪掉。</td></tr>
+  </table>
+  <div class="note">NA28、UBS5 等 Nestle-Aland／UBS 版本有版權，沒有內建。SBLGNT 是現代批判本，和 NA28 在絕大多數地方用字一致（約翰福音 3:14–21 實測只有兩處不同：3:16 NA28 的 [ὁ θεὸς] 和 3:17 的省音拼寫）；如果你的分析一定要建立在 NA28 上，請自己貼上。資料來源與完整授權聲明在專案的 <code>src/data/bible/SOURCES.md</code>。經文是<b>內建在 app 裡</b>的，不需要網路。</div>
+  <h3>要注意的地方</h3>
+  <ul>
+    <li><b>希臘文只有新約。</b>選舊約的書卷時，希臘文選項會停用。</li>
+    <li><b>各版本的節數不同：</b>分析欄的版本決定有哪些節。其他版本若在範圍內有章節數不同（例如約翰福音 7 章：和合本 52 節，BSB 和 SBLGNT 53 節；使徒行傳 19、羅馬書 16、哥林多後書 13 等），預覽會用 ⚠ 提醒你那個版本可能和分析欄錯位。</li>
+    <li><b>某個版本沒有的經節：</b>那一節的欄位留空（分析欄只會有節號），帶入後狀態列會提醒。</li>
+    <li>和合本有「」『』等新式標點；SBLGNT 保留文本本身的 [ ]；都沒有收錄經文裡的小標題。</li>
+    <li>一次最多帶入 400 節。更長的段落，請分幾次帶入。</li>
+    <li>之後想把分析欄和對照欄對調，可以用「交換分析欄與對照欄」（見後面的章節）。</li>
+  </ul>
+</section>
+
+<section id="bible-column" data-title="把內建經文加到既有文件的對照欄">
+  <h2>把內建經文加到既有文件的對照欄</h2>
+  <p>你已經有一份文件（分析欄是你自己貼上或打好的，例如 NA28 希臘文），想在旁邊加上和合本、BSB 或 SBLGNT 對照：工具列「<span class="btn">加入經文對照…</span>」。<b>只會動對照欄，分析欄一個字都不會改。</b></p>
+  <ol class="steps">
+    <li>選<b>書卷</b>（用過「帶入經文」建立的文件已經記住了，其他文件要自己選）。</li>
+    <li>選<b>版本</b>：中文（和合本）、英文（BSB）、希臘文（SBLGNT，只有新約）。</li>
+    <li>選<b>加到</b>哪裡：新的對照欄，或某個既有的對照欄。</li>
+    <li>如果那一欄的某幾節已經有內容，選「保留原本的（略過）」「覆蓋」或「接在後面」。</li>
+    <li>預覽確認後按「加入對照欄」。這是<b>一個復原步驟</b>。</li>
+  </ol>
+  <h3>它怎麼對齊</h3>
+  <ul>
+    <li>依<b>文件裡已經有的經節標記</b>，每一節放一段，放進對照欄的「整節」模式。所以分析欄怎麼拆行、合併，對照欄都會自動跨越那一節涵蓋的所有行。</li>
+    <li>文件裡<b>沒有經節標記</b>就沒辦法對齊，會告訴你先用「標為經節」標好，或貼上帶有節號的經文（貼上時會自動辨識）。</li>
+    <li>預覽會顯示文件裡的經節範圍和前三節。如果文件裡有某一節是那個版本沒有的（例如和合本沒有約 7:53），會列出來，那一節的欄位留空。</li>
+  </ul>
+  <h3>加到既有的對照欄時</h3>
+  <ul>
+    <li>如果那個欄原本是<b>逐行</b>模式，會改成<b>整節</b>模式；原本逐行的內容仍然保留，之後可以在版面設定切回去。</li>
+    <li>欄的語言會改成你選的版本的語言（字型也跟著換）。</li>
+    <li>對照欄最多 2 個。已經有 2 個時，只能選既有的欄。新欄的寬度預設 25%，其他欄占掉太多時會自動縮小，放不下就請你先縮小或關閉其他欄。</li>
+  </ul>
+  <h3>授權標示</h3>
+  <p>加入 SBLGNT（CC BY 4.0）時，文件最後一頁的下邊界會自動補上來源標示，已經有就不會重複。授權細節見上一章「帶入經文」。</p>
+</section>
+
+<section id="swap" data-title="交換分析欄與對照欄">
+  <h2>交換分析欄與對照欄</h2>
+  <p>情境：你先用中文打好、分析好括號，後來把希臘文貼進對照欄，現在想「以希臘文為分析欄」，括號樹和標記都留著，只是樹狀圖旁邊的文字從中文換成希臘文。</p>
+  <ol class="steps">
+    <li>先在「版面設定…」確認有一個<b>逐行</b>的對照欄，裡面已經有內容，並按「套用」。</li>
+    <li>再開「版面設定…」，在那個對照欄旁按「<span class="btn">與分析欄交換…</span>」。（有尚未套用的修改時，按鈕會停用。）</li>
+    <li>確認視窗會說明後果，按「交換」。可以用 <kbd>⌘Z</kbd> 一次回到交換前。</li>
+  </ol>
+  <h3>交換時發生的事</h3>
+  <ul>
+    <li>每一行的文字（含粗體等標記）和欄語言對調。括號、關係標記、縮排、分頁點全部不變。</li>
+    <li><b>經節標記</b>只能放在分析欄，所以每一行的標記會依原順序集中到新分析欄文字的<b>行首</b>。沒有行中標記時，每一行的經節歸屬完全不變。</li>
+    <li>如果有行<b>中間</b>的經節標記（一行含好幾節），標記移到行首後，那一行全部的新文字都歸給最後一個標記的經節。確認視窗會用紅字告訴你有幾行，交換後請檢查，必要時把那一行拆開。</li>
+    <li>對照欄空白的行，交換後新分析欄那一行是空行（括號結構照留）。</li>
+    <li>交換後兩欄各自用自己的語言的字型。</li>
+  </ul>
+  <div class="warn">只有「逐行」且「已經有內容」的對照欄能交換。整節對照欄不行。</div>
+</section>
+
+<section id="drag" data-title="拖曳移動">
+  <h2>拖曳移動</h2>
+  <ul>
+    <li><b>拖行：</b>按住左側的行號往上或往下拖。已經選了好幾行時，拖其中一個行號就是一起移動。</li>
+    <li><b>拖括號：</b>按住括號的垂直線拖。</li>
+    <li>拖的時候，指標停在某一行的上緣或下緣，會出現<b>藍色落點線</b>和「移動 N 項」。<kbd>Esc</kbd> 取消。</li>
+    <li><b>選哪一層：</b>同一個位置可能有好幾層可放（放在那一行旁邊，或放在包著它的括號旁邊，只有括號的第一個或最後一個子項才能選外層）。<b>用指標的水平位置挑：越靠近縱線是越外層，越靠右就是放進括號裡。</b></li>
+    <li>放在同一個括號裡重新排序時，標記跟著走；搬到別的括號，原本的標記捨棄（會提示），新位置的標記是待判定。</li>
+    <li>移動後每一段文字所屬的經節不變（會自動補隱藏錨點）。</li>
+  </ul>
+</section>
+
+<section id="layout" data-title="版面設定與頁面">
+  <h2>版面設定與頁面</h2>
+  <p>工具列「<span class="btn">版面設定…</span>」，按「套用」後生效（一個復原步驟）。</p>
+  <table>
+    <tr><th>項目</th><th>說明</th></tr>
+    <tr><td>頁面方向、邊界</td><td>A4 直向或橫向，四邊邊界（mm）。工具列的「直向／橫向」按鈕可以快速切換。</td></tr>
+    <tr><td>分析欄語言</td><td>希臘文、英文、繁體中文。決定這一欄用的字型。</td></tr>
+    <tr><td>字級、每階縮排</td><td>字級（pt）與每一階縮排的寬度（mm）。</td></tr>
+    <tr><td>樹狀區左邊留白</td><td>括號樹左邊留多少空白（mm）。</td></tr>
+    <tr><td><b>版面縮放</b></td><td>影響<b>列印出來的大小</b>，存在文件裡。放大表示同一頁放得下較少內容。</td></tr>
+    <tr><td>檢視縮放</td><td>工具列右邊的「檢視縮放」，只影響<b>螢幕上看起來的大小</b>（像放大鏡），不影響文件和列印。</td></tr>
+    <tr><td>標記分隔符、主句加 *</td><td>多個關係在同一個分支上用什麼連接（預設「/」）；主句標記是否一律加 *。</td></tr>
+  </table>
+  <h3>版面過窄</h3>
+  <p>分析欄扣掉最深的縮排後少於 40mm 時，頁面上方會出現黃色提示列。<b>app 不會自動偷偷縮小</b>，而是請你選一個：改成橫向、版面縮放 −10%、字級 −1pt、每階縮排 −1mm，或關閉某個對照欄。</p>
+  <h3>分頁</h3>
+  <ul>
+    <li>內容超過一頁會自動分頁；<kbd>⌘ Enter</kbd> 可以在某一行之前強制換頁。</li>
+    <li>一般的行不會被切到兩頁，放不下就整行移到下一頁。</li>
+    <li><b>一列比一頁還高</b>（例如對照欄貼了很長的譯文）會自動<b>跨頁切開</b>，只在整行的邊界切。跨頁的列在畫面上是唯讀顯示，<b>點一下會開編輯視窗</b>編輯整格，按 <kbd>Esc</kbd> 或「完成」關閉。</li>
+    <li>跨頁的括號，垂直線在每一頁都會接起來；分支標記畫在分支所在的那一頁。</li>
+    <li>整節對照的區塊涵蓋的行要在同一頁。區塊比一頁還高，或被手動分頁點切開，就無法輸出（要縮短譯文、改橫向或拿掉中間的分頁點）。</li>
+  </ul>
+</section>
+
+<section id="output" data-title="匯出前檢查、PDF 與列印">
+  <h2>匯出前檢查、PDF 與列印</h2>
+  <p>按「匯出 PDF」或「列印」（<kbd>⌘P</kbd>）。如果有沒做完的地方，會先顯示清單，<b>點清單裡的任一項會跳到那個位置</b>。</p>
+  <table>
+    <tr><th>項目</th><th>會不會擋下輸出</th></tr>
+    <tr><td>整節對照區塊太高</td><td>會，必須修正</td></tr>
+    <tr><td>字型還沒載入完成</td><td>會，等一下再試</td></tr>
+    <tr><td>未指定關係的括號、待判定的標記、缺主句的關係、版面過窄</td><td>不會，可以按「仍要輸出」</td></tr>
+  </table>
+  <ul>
+    <li>PDF 是向量格式，文字可以搜尋，字型內嵌。紙張 A4。</li>
+    <li>畫面上的 ?、!、藍點、灰色錨點、行號、選取底色都<b>不會</b>印出來。</li>
+    <li>這些提示在畫面上都看得到，所以匯出前的清單是在提醒你「輸出的內容裡還有沒完成的分析」。</li>
+  </ul>
+</section>
+
+<section id="files" data-title="檔案、存檔與備份">
+  <h2>檔案、存檔與備份</h2>
+  <p>一個檔案（副檔名 <code>.verse</code>）對應一段經文。</p>
+  <table>
+    <tr><th>操作</th><th>說明</th></tr>
+    <tr><td>新增</td><td>工具列的「新增…」選單：空白新文件、範例。選了會用它取代畫面上的文件（有未存的變更會先問你儲存、不儲存或取消）。</td></tr>
+    <tr><td>存檔／另存新檔</td><td><kbd>⌘S</kbd>。存檔前會先驗證，驗證失敗表示 app 有錯，不會覆蓋原檔。</td></tr>
+    <tr><td>開啟</td><td><kbd>⌘O</kbd>。檔案壞掉或不合法時，會告訴你哪裡有問題，不會開啟、也不會改動原檔。</td></tr>
+    <tr><td>標題列的「已編輯」</td><td>目前內容和上次存檔的內容不一樣。復原回到存檔時的狀態，「已編輯」就會消失。</td></tr>
+  </table>
+  <h3>安全保護（Electron 版）</h3>
+  <ul>
+    <li><b>安全寫檔：</b>先寫暫存檔，確認寫入磁碟後才改名取代原檔，寫到一半斷電不會毀掉原檔。</li>
+    <li><b>備份：</b>每次存檔前，舊版會自動備份，每個檔案保留最近 20 版（可以在偏好設定改）。工具列「開啟備份…」可以依檔案瀏覽備份、預覽內容，選擇「開成新文件（副本）」或「取代目前文件內容」（可以用 ⌘Z 復原）。</li>
+    <li><b>自動存檔與當機復原：</b>有未存的變更時，每 30 秒（可以在偏好設定改）寫一份復原檔，不會覆蓋原檔。app 當機或被強制結束後，下次啟動會問你要不要恢復。</li>
+    <li><b>關閉時：</b>有未存的變更會問你儲存、不儲存或取消。選「不儲存」會刪掉復原檔，下次不會又出現。</li>
+  </ul>
+  <div class="warn"><b>在瀏覽器裡跑（<code>npm run dev</code>）時功能比較少：</b>「存檔」是下載一個新檔案（不會覆蓋上一次的）、沒有自動存檔和備份。要日常使用請用 Electron 版。</div>
+</section>
+
+<section id="prefs" data-title="偏好設定與關係表">
+  <h2>偏好設定與關係表</h2>
+  <p>「<span class="btn">偏好設定…</span>」（<kbd>⌘,</kbd>）是 app 的設定，不會存進文件，也不影響已經存在的文件。</p>
+  <ul>
+    <li>檢視縮放、自動存檔間隔（10–600 秒）、備份保留版數（5–100）。</li>
+    <li><b>新文件的預設版面：</b>之後新增的文件會用這份版面（方向、邊界、字級、縮排、版面縮放等）。</li>
+    <li><b>關係表（全域預設）：</b>「<span class="btn">關係表…</span>」可以新增、修改、刪除、排序關係，設定次要句標記、主句標記、主句規則（有／無／可以指定）。</li>
+  </ul>
+  <div class="note"><b>全域關係表和文件裡的關係表是兩份。</b>新文件建立時會複製一份全域表到檔案裡，所以之後你怎麼改全域表，舊檔案永遠顯示得和當初一樣。想讓目前的文件也用新增的關係，在關係表編輯器按「儲存並加入目前文件」，它只加入文件裡<b>沒有</b>的關係，不會改動已有的。</div>
+</section>
+
+<section id="shortcuts" data-title="快捷鍵一覽">
+  <h2>快捷鍵一覽</h2>
+  <table>
+    <tr><th>快捷鍵</th><th>作用</th></tr>
+    <tr><td><kbd>⌘Z</kbd> ／ <kbd>⇧⌘Z</kbd></td><td>復原 ／ 重做</td></tr>
+    <tr><td><kbd>⌘S</kbd> ／ <kbd>⌘O</kbd></td><td>存檔 ／ 開啟</td></tr>
+    <tr><td><kbd>⌘P</kbd></td><td>列印（先做匯出前檢查）</td></tr>
+    <tr><td><kbd>⌘,</kbd></td><td>偏好設定</td></tr>
+    <tr><td><kbd>⌘/</kbd></td><td>開啟這份使用說明</td></tr>
+    <tr><td><kbd>Enter</kbd></td><td>在游標處斷行（對照欄：移到下一行）</td></tr>
+    <tr><td><kbd>Backspace</kbd>（行首）／ <kbd>Delete</kbd>（行尾）</td><td>併入上一行 ／ 併入下一行</td></tr>
+    <tr><td><kbd>Tab</kbd> ／ <kbd>⇧ Tab</kbd></td><td>縮排 ／ 退回（對照欄：下一格／上一格）</td></tr>
+    <tr><td><kbd>⌘ Enter</kbd></td><td>切換「這一行之前強制換頁」</td></tr>
+    <tr><td><kbd>⌘G</kbd> ／ <kbd>⇧⌘G</kbd></td><td>建立括號 ／ 解除括號</td></tr>
+    <tr><td><kbd>⌥↑</kbd> ／ <kbd>⌥↓</kbd></td><td>上移 ／ 下移</td></tr>
+    <tr><td><kbd>⌘]</kbd> ／ <kbd>⇧⌘]</kbd> ／ <kbd>⌘[</kbd></td><td>併入下方括號 ／ 併入上方括號 ／ 移出括號</td></tr>
+    <tr><td><kbd>⌘B</kbd> <kbd>⌘I</kbd> <kbd>⌘U</kbd></td><td>粗體、斜體、底線</td></tr>
+    <tr><td><kbd>Delete</kbd>（選了行之後）</td><td>刪除選取的行</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>取消選取、關閉關係面板、取消拖曳、關閉展開編輯視窗</td></tr>
+    <tr><td>點行號 ／ <kbd>⇧</kbd>＋點 ／ <kbd>⌘</kbd>＋點</td><td>選一行 ／ 選一段 ／ 加選</td></tr>
+    <tr><td>點括號垂直線 ／ <kbd>⌘</kbd>＋點</td><td>選括號 ／ 加選括號</td></tr>
+  </table>
+</section>
+
+<section id="faq" data-title="常見問題">
+  <h2>常見問題</h2>
+
+  <details><summary>我要怎麼建立括號？它說要選取兩個以上的項目，但我不知道怎麼選。</summary>
+    <p>點頁面最左邊灰色的<b>行號</b>選取行，按住 <kbd>⇧</kbd> 再點另一個行號可以選一段，然後按「建立括號」或 <kbd>⌘G</kbd>。在文字裡拖曳選取的是文字，不是項目。詳見「選取行與括號」。</p>
+  </details>
+
+  <details><summary>已經建了括號，要在它上面再包一層括號？</summary>
+    <p>點那個括號的垂直線選取它，按住 <kbd>⌘</kbd> 再點要一起包的行號（或另一個括號的垂直線），然後 <kbd>⌘G</kbd>。見「括號」那一節的兩個範例。</p>
+  </details>
+
+  <details><summary>選了關係之後，找不到可以確定、關閉面板的地方？</summary>
+    <p>面板上每個按鈕按下去就已經生效，所以沒有確定鈕。按面板右上角的「完成」或 <kbd>Esc</kbd> 關閉。做錯了用 <kbd>⌘Z</kbd>。</p>
+  </details>
+
+  <details><summary>先打了中文，現在想加入希臘原文對照？</summary>
+    <p>版面設定 → 新增對照欄 → 語言選「希臘文」、模式選「逐行」→ 套用。然後點那一欄的格子貼上希臘文，預覽選「逐格貼上」。想以希臘文為分析欄，再用「與分析欄交換」。見「對照欄」「交換分析欄與對照欄」。</p>
+  </details>
+
+  <details><summary>為什麼有些行行首多了灰色的小數字？</summary>
+    <p>那是隱藏的經節錨點，在你移動或刪除行之後自動補上，用來保持每段文字所屬的經節不變。不會列印。見「經節」。</p>
+  </details>
+
+  <details><summary>為什麼貼上到對照欄不會直接貼進去？</summary>
+    <p>為了不誤蓋掉已有的內容，貼到對照欄一律先顯示預覽，讓你確認對應到哪一格、哪些格子已有內容。</p>
+  </details>
+
+  <details><summary>我選了「新增」選單裡的範例，我打的文件不見了？</summary>
+    <p>「新增…」選單是用範本開一份新文件，取代畫面上的文件。有未存的變更時會先問你，選「儲存」就會存檔。找回的方法：用「開啟」選你存的檔案，或（Electron 版）用「開啟備份…」。</p>
+  </details>
+
+  <details><summary>版面過窄的提示是什麼意思？</summary>
+    <p>分析欄的寬度（扣掉最深的縮排後）少於 40mm，文字會被擠得很窄。通常是對照欄太多或太寬、或縮排很深。提示列上有幾個一鍵的解法。</p>
+  </details>
+
+  <details><summary>縮放有兩種，差在哪裡？</summary>
+    <p>「版面縮放」在版面設定裡，會改變列印出來的大小；「檢視縮放」在工具列右邊，只改變螢幕上看起來的大小。</p>
+  </details>
+
+  <details><summary>括號左邊的黃色 ?、紅色 ! 會印出來嗎？</summary>
+    <p>不會。它們只是畫面上的提醒；匯出或列印前，如果還有這些項目，會顯示清單提醒你。</p>
+  </details>
+
+  <details><summary>括號被我刪掉行之後突然消失了或變了？</summary>
+    <p>這是自動整理：括號被搬空就刪掉；只剩一個子項就解除，剩下的子項接手它的位置並繼承標記。可以用 <kbd>⌘Z</kbd> 復原。狀態列也會告訴你移除了幾個括號關係。</p>
+  </details>
+
+  <details><summary>我已經有一份文件了，能不能事後把和合本或英文加到對照欄？</summary>
+    <p>可以：工具列「加入經文對照…」，依文件裡的經節標記逐節放進對照欄，分析欄不會被動到。見「把內建經文加到既有文件的對照欄」。</p>
+  </details>
+
+  <details><summary>可以自動帶入聖經經文嗎？</summary>
+    <p>可以：工具列「新增…」→「從聖經帶入經文…」，選書卷和章節範圍，會建立新文件，和合本在分析欄、BSB 在對照欄。見「帶入經文」。</p>
+  </details>
+
+  <details><summary>想把中文和希臘文／英文對照，經文要自己打嗎？</summary>
+    <p>中文（和合本）、英文（BSB）、希臘文（SBLGNT，只有新約）都可以用「帶入經文」自動產生。NA28 這類有版權的版本需要你自己貼上。</p>
+  </details>
+
+  <details><summary>想把一行移到別的位置？</summary>
+    <p>最直接的是拖曳行號；也可以用 <kbd>⌥↑</kbd> <kbd>⌥↓</kbd>，或「併入括號」「移出括號」。見「拖曳移動」。</p>
+  </details>
+
+  <details><summary>能不能一次選好幾個括號，或一次移動好幾行？</summary>
+    <p>可以：用 <kbd>⌘</kbd>＋點或 <kbd>⇧</kbd>＋點加選，再按對應的按鈕或直接拖曳。</p>
+  </details>
+
+  <details><summary>切換「逐行」和「整節」，原本的內容會不見嗎？</summary>
+    <p>不會。兩種模式的內容各自保留，切回去還在。</p>
+  </details>
+
+  <details><summary>想在文字裡的某一段加粗體，但跨了好幾行？</summary>
+    <p>每一格是獨立的編輯器，不能跨行選取文字。請一行一行分別設定。</p>
+  </details>
+</section>
+
+<section id="troubleshoot" data-title="疑難排解">
+  <h2>疑難排解</h2>
+  <details><summary>打不出字</summary>
+    <p>字型載入完成後，游標會自動在第一行。如果沒有游標，點一下任何一行的文字，或點頁面空白處（會跳到最近的一行）。如果只有注音打不出字，請把右下角偵錯面板裡的記錄告訴開發者（面板可以用工具列「顯示偵錯面板」打開）。</p>
+  </details>
+  <details><summary>按「開啟」選了檔案，什麼都沒發生</summary>
+    <p>最新版本會顯示「已開啟檔案」，或在檔案有問題時跳出說明。如果還是沒有反應，請確認選的是 <code>.verse</code> 檔案；瀏覽器版的存檔是下載到「下載」資料夾。</p>
+  </details>
+  <details><summary>「建立括號」按了沒反應</summary>
+    <p>看畫面最底下的狀態列，會寫原因：沒有選取項目、項目不相鄰、不在同一個括號下，或包住了父括號的全部子項。</p>
+  </details>
+  <details><summary>頁面左邊被擠出螢幕</summary>
+    <p>視窗太窄、右側面板又開著時，頁面可以橫向捲動。按面板的「完成」關掉面板，或把視窗拉寬。</p>
+  </details>
+  <details><summary>匯出被擋下</summary>
+    <p>清單裡有 ⛔ 的項目必須先修正（整節對照區塊太高、字型未載入）。點清單項目會跳到位置。</p>
+  </details>
+  <details><summary>字型看起來不對</summary>
+    <p>每一欄依自己的語言選字型：希臘文和英文用內附的 Gentium Plus，繁體中文用宋體。檢查「版面設定」裡該欄的語言是否正確。</p>
+  </details>
+</section>
+
+<section id="limits" data-title="已知限制">
+  <h2>已知限制</h2>
+  <ul>
+    <li>一份文件只有一個分析欄；括號樹和縮排只套在分析欄。</li>
+    <li>不能用滑鼠跨行選取文字。</li>
+    <li>對照欄最多兩個，不能放經節標記。</li>
+    <li>整節對照欄中，「文件裡已經沒有的經節」的譯文還留在檔案裡，但畫面上看不到。</li>
+    <li>整節對照的區塊不能跨頁。</li>
+    <li>內建經文只能加到<b>對照欄</b>，或用來建立<b>新文件</b>；不能把內建經文放進既有文件的<b>分析欄</b>。</li>
+    <li>內建經文只有和合本（上帝版用字，可換成「神」）、BSB 和 SBLGNT（希臘文新約）；沒有舊約的希臘文或希伯來文原文，也沒有 NA28／UBS 等有版權的版本。</li>
+    <li>希伯來文（從右到左）還沒支援。</li>
+    <li>瀏覽器版沒有備份和自動存檔。</li>
+  </ul>
+</section>
+
+</main>
+</div>
+<script>
+  // 目錄：依 <section> 自動產生；捲動時標示目前所在的章節；搜尋會隱藏不相關的章節
+  const sections = [...document.querySelectorAll('main section')];
+  const toc = document.getElementById('toc');
+  for (const s of sections) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#' + s.id;
+    a.textContent = s.dataset.title;
+    li.appendChild(a);
+    toc.appendChild(li);
+  }
+  const links = [...toc.querySelectorAll('a')];
+  const io = new IntersectionObserver(
+    (es) => {
+      for (const e of es) if (e.isIntersecting) links.forEach((l) => l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id));
+    },
+    { rootMargin: '-10% 0px -80% 0px' },
+  );
+  sections.forEach((s) => io.observe(s));
+
+  const q = document.getElementById('q');
+  q.addEventListener('input', () => {
+    const t = q.value.trim().toLowerCase();
+    let n = 0;
+    for (const s of sections) {
+      const hit = !t || s.textContent.toLowerCase().includes(t);
+      s.classList.toggle('hide', !hit);
+      if (hit) n++;
+      // 搜尋時把符合的 <details> 展開
+      s.querySelectorAll('details').forEach((d) => (d.open = !!t && d.textContent.toLowerCase().includes(t) ? true : d.hasAttribute('data-open')));
+    }
+    links.forEach((l, i) => l.parentElement.classList.toggle('hide', sections[i].classList.contains('hide')));
+    let none = document.getElementById('nores');
+    if (!n) {
+      if (!none) {
+        none = document.createElement('p');
+        none.id = 'nores';
+        none.className = 'nores';
+        none.textContent = '找不到符合的說明。';
+        document.querySelector('main').prepend(none);
+      }
+    } else none?.remove();
+  });
+  document.querySelectorAll('details[open]').forEach((d) => d.setAttribute('data-open', ''));
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+</script>
+</body>
+</html>
