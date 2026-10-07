@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { HelpLink } from './HelpLink';
+import { k } from './keys';
 import type { Result } from '../core/commands';
 import * as C from '../core/commands';
 import { findType, labelText } from '../core/relations';
@@ -21,7 +22,7 @@ export function RelationPanel({ doc, bracket, run, onClose }: { doc: Doc; bracke
         <h4>括號關係 <HelpLink topic="relations" /></h4>
         <button className="primary" onClick={onClose} title="Esc">完成</button>
       </div>
-      <p className="hint">每個修改按下去就已經套用，可以用 ⌘Z 復原。設定好了按「完成」關閉這個面板。</p>
+      <p className="hint">每個修改按下去就已經套用，可以用 {k('⌘Z')} 復原。設定好了按「完成」關閉這個面板。</p>
       <section>
         <b>加入關係</b>
         <input placeholder="打字篩選…" value={q} onChange={(e) => setQ(e.target.value)} />

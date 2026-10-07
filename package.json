@@ -13,7 +13,7 @@
     "electron": "vite build && electron .",
     "package": "node scripts/package.mjs",
     "icon": "python3 scripts/make_icon.py",
-    "build:public": "VITE_PUBLIC=1 vite build",
+    "build:public": "vite build --mode public",
     "check:public": "node scripts/check_public_build.mjs"
   },
   "devDependencies": {

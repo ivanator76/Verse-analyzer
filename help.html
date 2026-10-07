@@ -14,6 +14,8 @@
   nav { width: 250px; flex: none; position: sticky; top: 0; height: 100vh; overflow: auto; padding: 18px 14px; background: var(--soft); border-right: 1px solid var(--line); }
   nav h1 { font-size: 16px; margin: 0 0 10px; }
   nav input { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 13px; margin-bottom: 10px; }
+  .keymode { font-size: 12.5px; margin: 0 0 10px; padding: 6px 8px; background: #fff; border: 1px solid var(--line); border-radius: 6px; line-height: 1.6; }
+  .keymode label { display: block; cursor: pointer; }
   nav ol { list-style: none; margin: 0; padding: 0; }
   nav li a { display: block; padding: 4px 8px; border-radius: 6px; color: var(--ink); text-decoration: none; font-size: 13.5px; }
   nav li a:hover { background: #e6edfb; }
@@ -50,9 +52,31 @@
 <nav>
   <h1>使用說明</h1>
   <input id="q" type="search" placeholder="搜尋說明…（例如：括號、經節、匯出）" />
+  <div class="keymode" title="說明裡的快捷鍵要用哪一種寫法顯示">
+    <b>按鍵顯示</b>
+    <label><input type="radio" name="km" value="mac" /> Mac（⌘ ⌥ ⇧）</label>
+    <label><input type="radio" name="km" value="win" /> Windows／Linux（Ctrl Alt Shift）</label>
+  </div>
   <ol id="toc"></ol>
 </nav>
 <main>
+
+<section id="systems" data-title="支援的系統與瀏覽器">
+  <h2>支援的系統與瀏覽器</h2>
+  <table>
+    <tr><th>版本</th><th>Mac</th><th>Windows</th><th>Linux／ChromeOS</th></tr>
+    <tr><td><b>網頁版</b>（用瀏覽器打開網址）</td><td>可以</td><td>可以</td><td>可以</td></tr>
+    <tr><td><b>桌面版</b>（安裝 app）</td><td>可以（Apple Silicon，見「安裝與開啟 app」）</td><td>目前沒有打包好的版本</td><td>目前沒有打包好的版本</td></tr>
+  </table>
+  <ul>
+    <li><b>建議用最新版的 Chrome 或 Edge</b>（Windows、Mac、Linux 都有）：「存檔」可以直接存回你選的 <code>.verse</code> 檔案。Firefox 和 Safari 也能用，但「存檔」是下載新檔（見「網頁版」）。</li>
+    <li data-keep><b>快捷鍵：</b>說明裡的 <kbd>⌘</kbd> 在 Windows／Linux 上就是 <kbd>Ctrl</kbd>，<kbd>⌥</kbd> 是 <kbd>Alt</kbd>，<kbd>⇧</kbd> 是 <kbd>Shift</kbd>。這份說明會依你的系統自動換成對應的寫法，也可以在左上方「按鍵顯示」手動切換。app 本身兩種按法都接受。</li>
+    <li>Mac 上的 <kbd>Delete</kbd>（行尾合併下一行）要按 <kbd>fn Delete</kbd>；Windows 的 <kbd>Delete</kbd> 鍵就是這個鍵。滑鼠的「加選」在 Mac 是 <kbd>⌘</kbd>＋點，Windows／Linux 是 <kbd>Ctrl</kbd>＋點。</li>
+    <li><b>輸入法：</b>Windows 的「微軟注音」等中文輸入法，組字規則和 Mac 的注音一樣（組字中按 <kbd>Enter</kbd>、<kbd>Tab</kbd>、<kbd>Backspace</kbd> 交給輸入法處理，一次組字是一個復原步驟）。我只在 Mac 上實測過，Windows 上如果有不一樣的地方，歡迎回報。</li>
+    <li><b>匯出 PDF：</b>各系統的瀏覽器列印視窗位置不同。Windows 的 Chrome／Edge 在列印視窗按「更多設定」，把<b>邊界</b>設成「無」、<b>縮放</b>設成 100%、取消勾選「頁首和頁尾」，目的地選「另存為 PDF」（Edge 是「Microsoft Print to PDF」或「另存為 PDF」）。</li>
+    <li><b>桌面版在 Windows／Linux：</b>程式是用 Electron 寫的，原則上可以跑，但打包的指令（<code>npm run package</code>）目前只支援 Mac，Windows 與 Linux 沒有測試過。需要的話可以從原始碼用 <code>npm run electron</code> 開發模式執行。</li>
+  </ul>
+</section>
 
 <section id="web" data-title="網頁版">
   <h2>網頁版（用瀏覽器直接使用）</h2>
@@ -70,8 +94,8 @@
   <div class="note">網頁版不含範例文件。想看操作範例，用「新增…→從聖經帶入經文」帶入一段經文就可以開始。</div>
 </section>
 
-<section id="install" data-title="安裝與開啟 app">
-  <h2>安裝與開啟 app</h2>
+<section id="install" data-title="安裝與開啟 app（Mac）">
+  <h2>安裝與開啟 app（Mac）</h2>
   <ol class="steps">
     <li>在專案資料夾執行 <code>npm run package</code>，會在 <code>release/經文結構分析-darwin-arm64/</code> 產生 <b>經文結構分析.app</b>。</li>
     <li>把它拖進「應用程式」資料夾，之後<b>雙擊</b>就能開啟，不需要終端機或開發伺服器。</li>
@@ -456,6 +480,7 @@
 
 <section id="shortcuts" data-title="快捷鍵一覽">
   <h2>快捷鍵一覽</h2>
+  <p class="note" data-keep>表中用 Mac 的符號：<kbd>⌘</kbd>＝Windows／Linux 的 <kbd>Ctrl</kbd>，<kbd>⌥</kbd>＝<kbd>Alt</kbd>，<kbd>⇧</kbd>＝<kbd>Shift</kbd>。（頁面會依你的系統自動換成對應的寫法，見左上方「按鍵顯示」。）</p>
   <table>
     <tr><th>快捷鍵</th><th>作用</th></tr>
     <tr><td><kbd>⌘Z</kbd> ／ <kbd>⇧⌘Z</kbd></td><td>復原 ／ 重做</td></tr>
@@ -638,6 +663,25 @@
     } else none?.remove();
   });
   document.querySelectorAll('details[open]').forEach((d) => d.setAttribute('data-open', ''));
+  // 按鍵符號：原稿一律用 Mac 的符號（⌘ ⌥ ⇧）；非 Mac 的系統自動換成 Ctrl／Alt／Shift，也可以手動切換
+  (() => {
+    const NAME = { '⌘': 'Ctrl', '⌥': 'Alt', '⇧': 'Shift' };
+    const RE = /([⌘⌥⇧]+)(\s?)(Enter|Tab|Esc|Delete|Backspace|[A-Za-z0-9,/[\]↑↓←→])?/g;
+    const conv = (t) => t.replace(RE, (_m, run, sp, key) => { const n = [...run].map((c) => NAME[c]).join('+'); return key ? n + '+' + key : n + sp; });
+    const nodes = [];
+    const w = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) if (/[⌘⌥⇧]/.test(n.data) && !n.parentElement.closest('[data-keep]')) nodes.push({ n, orig: n.data }); // data-keep：講解「⌘ 就是 Ctrl」的那幾句不轉換
+    const apply = (mode) => {
+      for (const { n, orig } of nodes) n.data = mode === 'win' ? conv(orig) : orig;
+      document.querySelectorAll('input[name=km]').forEach((r) => (r.checked = r.value === mode));
+      try { localStorage.setItem('helpKeyMode', mode); } catch {}
+    };
+    const saved = (() => { try { return localStorage.getItem('helpKeyMode'); } catch { return null; } })();
+    const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+    apply(saved || (mac ? 'mac' : 'win'));
+    document.querySelectorAll('input[name=km]').forEach((r) => r.addEventListener('change', () => apply(r.value)));
+  })();
+
   if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
 </script>
 </body>
