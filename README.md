@@ -6,6 +6,18 @@
 
 網頁版不需要安裝、不需要註冊；你的文件只存在你自己的電腦，不會上傳。第一次使用請看畫面上的「說明」。
 
+## 支援的系統
+
+| 版本 | Mac | Windows | Linux／ChromeOS |
+|---|---|---|---|
+| **網頁版** | 可以 | 可以 | 可以 |
+| **桌面版**（Electron） | 可以（Apple Silicon，已打包） | 沒有打包好的版本 | 沒有打包好的版本 |
+
+- 網頁版建議用最新版的 **Chrome 或 Edge**：「存檔」可以直接存回選好的 `.verse` 檔案。Firefox、Safari 也能用，但「存檔」是下載新檔。
+- **快捷鍵**：說明裡用 Mac 的符號（⌘ ⌥ ⇧）；在 Windows／Linux 上 ⌘＝Ctrl、⌥＝Alt、⇧＝Shift，說明頁會依你的系統自動換成對應的寫法。app 本身兩種按法都接受。
+- 只在 Mac 上實測過；Windows 與 Linux 的瀏覽器版本我沒有測過輸入法與列印，遇到問題歡迎回報。
+- 桌面版理論上可以在 Windows／Linux 跑（用 `npm run electron`），但打包指令 `npm run package` 目前只支援 Mac。
+
 ## 主要功能
 
 - 括號樹編輯：建立、解除、移動（含拖曳）括號；一個括號可以同時有好幾個關係；可編輯的關係表
@@ -19,7 +31,7 @@
 
 ## 自己在電腦上跑
 
-需要 Node.js 22 以上。
+需要 Node.js 22 以上（Mac、Windows、Linux 都可以；除了打包成 Mac app 和重新產生圖示這兩個指令只能在 Mac 上用）。
 
 ```bash
 npm install

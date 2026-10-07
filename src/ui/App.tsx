@@ -15,6 +15,7 @@ import { CellEditor, type EditorHandlers, type FocusReq } from './Editor';
 import { cellFont, domMeasurer, fontStack, LABEL_PT, LINE_HEIGHT } from './measure';
 import { offsetToPos, segsSize } from './pm';
 import { Segs } from './segs';
+import { k } from './keys';
 import { LayoutSettings } from './LayoutSettings';
 import { langName } from '../core/fonts';
 import { BackupBrowser } from './BackupBrowser';
@@ -518,14 +519,14 @@ export function App() {
       const a = order.indexOf(selAnchor.current);
       const b = order.indexOf(id);
       setSel(order.slice(Math.min(a, b), Math.max(a, b) + 1));
-    } else if (e.metaKey) {
+    } else if (e.metaKey || e.ctrlKey) {
       setSel((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
       selAnchor.current = id;
     } else {
       setSel([id]);
       selAnchor.current = id;
     }
-    if (!e.shiftKey && !e.metaKey) dragStart.current = { ids: sel.includes(id) ? sel : [id], x: e.clientX, y: e.clientY, active: false };
+    if (!e.shiftKey && !e.metaKey && !e.ctrlKey) dragStart.current = { ids: sel.includes(id) ? sel : [id], x: e.clientX, y: e.clientY, active: false };
   };
 
   const effIds = (): string[] => (sel.length ? sel : curSel.current ? [curSel.current.rowId] : []);
@@ -802,7 +803,7 @@ export function App() {
               </li>
             )}
             {plan.emptyNewMain > 0 && <li>{plan.emptyNewMain} 行的對照欄是空白，交換後新分析欄的那一行是空行。</li>}
-            <li>可以用 ⌘Z 一次回到交換前。</li>
+            <li>可以用 {k('⌘Z')} 一次回到交換前。</li>
           </ul>
         </div>
       ),
@@ -839,18 +840,18 @@ export function App() {
         <button onClick={() => undoBtn(false)} disabled={!h.past.length}>復原</button>
         <button onClick={() => undoBtn(true)} disabled={!h.future.length}>重做</button>
         <span className="sep" />
-        <button onClick={() => actions.current.create()} title="⌘G：選取相鄰的行後，包成括號">建立括號</button>
-        <button onClick={() => actions.current.dissolve()} title="⌘⇧G：先點選括號的垂直線">解除括號</button>
-        <button onClick={() => actions.current.up()} title="⌥↑">上移</button>
-        <button onClick={() => actions.current.down()} title="⌥↓">下移</button>
-        <button onClick={() => actions.current.into()} title="⌘]：併入下方相鄰的括號">併入括號</button>
-        <button onClick={() => actions.current.out()} title="⌘[：移出所在的括號">移出括號</button>
+        <button onClick={() => actions.current.create()} title={k("⌘G：選取相鄰的行後，包成括號")}>建立括號</button>
+        <button onClick={() => actions.current.dissolve()} title={k("⌘⇧G：先點選括號的垂直線")}>解除括號</button>
+        <button onClick={() => actions.current.up()} title={k("⌥↑")}>上移</button>
+        <button onClick={() => actions.current.down()} title={k("⌥↓")}>下移</button>
+        <button onClick={() => actions.current.into()} title={k("⌘]：併入下方相鄰的括號")}>併入括號</button>
+        <button onClick={() => actions.current.out()} title={k("⌘[：移出所在的括號")}>移出括號</button>
         <button onClick={() => actions.current.del()} title="先在左側選取行">刪除行</button>
         <span className="sep" />
         <button onClick={() => setLayoutDlg(true)}>版面設定…</button>
         <button onClick={() => setBibleColDlg(true)} title="把內建的和合本／BSB／SBLGNT 依經節放進對照欄">加入經文對照…</button>
         <button onClick={() => setRelDlg(true)}>關係表…</button>
-        <button onClick={() => setPrefsDlg(true)} title="⌘,">偏好設定…</button>
+        <button onClick={() => setPrefsDlg(true)} title={k("⌘,")}>偏好設定…</button>
         <button onClick={() => tweak((x) => (x.page.orientation = landscape ? 'portrait' : 'landscape'))} title="切換頁面方向">{landscape ? '橫向' : '直向'}</button>
         <label>
           檢視縮放{' '}
@@ -860,17 +861,17 @@ export function App() {
         </label>
         <span className="spacer" />
         {layout.warnings.tooTall.length > 0 && <span className="warn">有 {layout.warnings.tooTall.length} 個整節對照區塊超高，無法輸出</span>}
-        <button onClick={() => openHelp()} title="⌘/">說明</button>
+        <button onClick={() => openHelp()} title={k("⌘/")}>說明</button>
         <button onClick={() => setShowLog((v) => !v)}>{showLog ? '隱藏' : '顯示'}偵錯面板</button>
-        <button onClick={() => startOutput('print')} title="⌘P">列印</button>
+        <button onClick={() => startOutput('print')} title={k("⌘P")}>列印</button>
         <button onClick={() => startOutput('pdf')}>匯出 PDF</button>
       </div>
 
       <div className="toolbar sub" onMouseDown={(e) => { if ((e.target as HTMLElement).tagName !== 'INPUT') e.preventDefault(); }}>
         <span>文字</span>
-        <button onClick={() => doMark('b')} title="⌘B" style={{ fontWeight: 700 }}>B</button>
-        <button onClick={() => doMark('i')} title="⌘I" style={{ fontStyle: 'italic' }}>I</button>
-        <button onClick={() => doMark('u')} title="⌘U" style={{ textDecoration: 'underline' }}>U</button>
+        <button onClick={() => doMark('b')} title={k("⌘B")} style={{ fontWeight: 700 }}>B</button>
+        <button onClick={() => doMark('i')} title={k("⌘I")} style={{ fontStyle: 'italic' }}>I</button>
+        <button onClick={() => doMark('u')} title={k("⌘U")} style={{ textDecoration: 'underline' }}>U</button>
         <button onClick={() => doMark('sup')} title="上標">x²</button>
         <span className="swatches" title="螢光底色">
           螢光
@@ -977,7 +978,7 @@ export function App() {
                 style={{ top: `${f.page * strideL + mg[0] + f.y}mm`, left: `${mg[3]}mm`, width: `${layout.page.contentW}mm`, height: `${f.h}mm` }}>
                 {sel.includes(r.id) && <div className="rowsel screen-only" />}
                 {fi === 0 && (
-                  <div className={`gutter screen-only${sel.includes(r.id) ? ' on' : ''}`} onMouseDown={(e) => selectRow(r.id, e)} title="點選整行（⇧連選、⌘加選）">
+                  <div className={`gutter screen-only${sel.includes(r.id) ? ' on' : ''}`} onMouseDown={(e) => selectRow(r.id, e)} title={k("點選整行（⇧連選、⌘加選）")}>
                     {(orderIdx.get(r.id) ?? 0) + 1}
                   </div>
                 )}
@@ -1072,7 +1073,7 @@ export function App() {
             // 取代目前文件內容：一個復原步驟，⌘Z 可以回到取代前
             setH(H.push(hRef.current, d, curSel.current));
             setSel([]);
-            setNotice('已用備份版本取代目前文件的內容，可以按 ⌘Z 復原');
+            setNotice(k('已用備份版本取代目前文件的內容，可以按 ⌘Z 復原'));
           }}
         />
       )}
@@ -1134,7 +1135,7 @@ export function App() {
       <div className="statusbar">
         <span>{layout.pages} 頁・{layout.rows.length} 行{splitRows ? `・${splitRows} 列跨頁` : ''}</span>
         <span>未指定關係 {inc.unassignedBrackets.length}・待判定 {inc.pendingLabels.length}・缺主句 {inc.missingMain.length}</span>
-        <span>{notice}</span>
+        <span>{k(notice)}</span>
         {pasteInfo && h.present === pasteInfo.doc && <button onClick={cancelDetect}>取消經節辨識</button>}
       </div>
     </>

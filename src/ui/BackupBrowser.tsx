@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { HelpLink } from './HelpLink';
+import { k } from './keys';
 import { findIncomplete } from '../core/commands';
 import { parseDoc } from '../core/file';
 import { rowsInOrder, segsText } from '../core/tree';
@@ -124,7 +125,7 @@ export function BackupBrowser({
         <div className="modal-buttons">
           {sel && <button onClick={() => void window.api!.revealBackup(sel.path)}>在 Finder 顯示</button>}
           <button disabled={!prev?.doc} onClick={() => (onClose(), onOpenCopy(prev!.doc!))}>開成新文件（副本）</button>
-          <button className="primary" disabled={!prev?.doc} title="用這個版本取代目前文件的內容；可以用 ⌘Z 復原" onClick={() => (onClose(), onReplace(prev!.doc!))}>取代目前文件內容</button>
+          <button className="primary" disabled={!prev?.doc} title={k("用這個版本取代目前文件的內容；可以用 ⌘Z 復原")} onClick={() => (onClose(), onReplace(prev!.doc!))}>取代目前文件內容</button>
           <button onClick={onClose}>關閉</button>
         </div>
       </div>
