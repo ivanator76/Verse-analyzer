@@ -2,7 +2,7 @@
 
 用「括號樹」分析經文的邏輯結構：把經文一行一行排好，用括號把有關係的行包起來，標上它們之間的關係（因果、目的、解釋…），最後匯出成 A4 的 PDF。可以用繁體中文操作，支援注音等輸入法。
 
-**線上使用（網頁版）：** `https://<你的帳號>.github.io/<專案名稱>/`　（部署後把這裡改成真正的網址）
+**線上使用（網頁版）：** <https://ivanator76.github.io/Verse-analyzer/>
 
 網頁版不需要安裝、不需要註冊；你的文件只存在你自己的電腦，不會上傳。第一次使用請看畫面上的「說明」。
 
@@ -35,7 +35,7 @@ npm run build:public # 建置網頁版（不含範例文件）→ dist/
 
 專案已經附好 `.github/workflows/pages.yml`。推到 `main` 之後，GitHub Actions 會自動：型別檢查 → 測試 → 建置公開版 → 檢查 → 部署。
 
-第一次使用要在 GitHub 專案的 **Settings → Pages** 把 **Source** 設成 **GitHub Actions**。
+第一次使用要在 GitHub 專案的 **Settings → Pages** 把 **Source** 設成 **GitHub Actions**（這個專案已經設好了）。
 
 ## 文件
 
