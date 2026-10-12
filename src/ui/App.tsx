@@ -2,7 +2,7 @@ import '@fontsource/gentium-plus/400.css';
 import '@fontsource/gentium-plus/700.css';
 import '@fontsource/gentium-plus/400-italic.css';
 import '@fontsource/gentium-plus/700-italic.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { T } from '../core/builder';
 import * as C from '../core/commands';
 import { createDoc } from '../core/doc';
@@ -81,6 +81,17 @@ export function App() {
   const [layoutDlg, setLayoutDlg] = useState(false);
   const [relDlg, setRelDlg] = useState(false);
   const [backupDlg, setBackupDlg] = useState(false);
+  // 工具列固定在最上面：量出它的高度（會因為視窗寬度換行、出現提示列而改變）給空白區塊與右側面板用。
+  // 用 ref 回呼：工具列一出現就開始觀察大小，換行或出現提示列時馬上更新。
+  const topbarsObserver = useRef<ResizeObserver | null>(null);
+  const topbarsRef = useCallback((el: HTMLDivElement | null) => {
+    topbarsObserver.current?.disconnect();
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty('--topH', `${el.offsetHeight}px`);
+    set();
+    topbarsObserver.current = new ResizeObserver(set);
+    topbarsObserver.current.observe(el);
+  }, []);
   const [bibleDlg, setBibleDlg] = useState(false);
   const [webNote, setWebNote] = useState(() => !hasNative() && localStorage.getItem('webNoteDismissed') !== '1');
   const [bibleColDlg, setBibleColDlg] = useState(false);
@@ -821,7 +832,7 @@ export function App() {
 
   return (
     <>
-      <div className="topbars" ref={(el) => { if (el) document.documentElement.style.setProperty("--topH", `${el.offsetHeight}px`); }}>
+      <div className="topbars" ref={topbarsRef}>
       <div className="toolbar">
         <strong>經文結構分析</strong>
         <span style={{ color: '#666' }}>{H.isDirty(h) ? '已編輯' : '已儲存'}</span>
@@ -917,6 +928,8 @@ export function App() {
         </div>
       )}
       </div>
+      {/* 工具列是固定在視窗最上面的（不跟著頁面捲動），這個空白區塊撐出同樣的高度，頁面內容才不會被蓋住 */}
+      <div className="topbars-spacer" />
 
       <div className="desk" style={{ zoom, paddingRight: selBracket ? 316 : 16 }}>
         <div className="sheet" onMouseDown={clickSheet} style={{ width: `${w}mm`, height: `${sheetH}mm` }}>
