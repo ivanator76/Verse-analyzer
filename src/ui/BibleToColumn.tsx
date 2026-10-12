@@ -3,7 +3,7 @@ import { BOOKS, VERSIONS, LANG_IDS, availableLangs, planBibleColumn, type BibleD
 import type { BibleColumnSpec, ExistingVersePolicy } from '../core/commands';
 import { newColumnWidth } from '../core/commands';
 import { langName } from '../core/fonts';
-import { segsText } from '../core/tree';
+import { refColumnIsEmpty, segsText } from '../core/tree';
 import type { Doc } from '../core/types';
 import { loadVersion } from './bibleData';
 import { HelpLink } from './HelpLink';
@@ -15,11 +15,16 @@ const NT = BOOKS.slice(39);
  * 把內建經文（和合本、BSB、SBLGNT）加進目前這份文件的對照欄。
  * 依文件裡已經有的經節標記，每一節放進對照欄（整節模式）；分析欄完全不動。
  */
-export function BibleToColumn({ doc, onApply, onClose }: { doc: Doc; onApply(spec: BibleColumnSpec): void; onClose(): void }) {
+export function BibleToColumn({ doc, initialTarget, onApply, onClose }: { doc: Doc; initialTarget?: string; onApply(spec: BibleColumnSpec): void; onClose(): void }) {
   const cols = doc.settings.refColumns;
   const [book, setBook] = useState(doc.meta.book ?? '');
   const [lang, setLang] = useState<LangId>(doc.settings.main.lang === 'zh-Hant' ? 'en' : 'zh-Hant');
-  const [target, setTarget] = useState<string>(cols.length < 2 ? 'new' : cols[0].id);
+  // 預設放進「還是空的」既有對照欄（例如剛在版面設定新增、還沒有內容的那一欄），沒有的話才新增一個
+  const [target, setTarget] = useState<string>(() => {
+    if (initialTarget && cols.some((c) => c.id === initialTarget)) return initialTarget;
+    const empty = cols.find((c) => refColumnIsEmpty(doc, c.id));
+    return empty ? empty.id : cols.length < 2 ? 'new' : cols[0].id;
+  });
   const [policy, setPolicy] = useState<ExistingVersePolicy>('skip');
   const [useShen, setUseShen] = useState(false);
   const [data, setData] = useState<Partial<Record<LangId, BibleData>>>({});
@@ -104,6 +109,7 @@ export function BibleToColumn({ doc, onApply, onClose }: { doc: Doc; onApply(spe
               </div>
             ))}
             {ok.keys.length > 3 && <div className="hint">…</div>}
+            <div className="hint">這是依文件裡的節號（章:節）取的。如果章不對（例如應該是第 3 章卻顯示第 1 章），請先改工具列的「起始章」，或點頁面上的節號修改章。</div>
             {ok.missing.length > 0 && <ul className="warnings"><li>⚠ {VERSIONS[effLang].short} 找不到這幾節（那幾節的欄位會是空的）：{ok.missing.slice(0, 8).join('、')}{ok.missing.length > 8 ? `…（共 ${ok.missing.length} 節）` : ''}</li></ul>}
           </div>
         )}
