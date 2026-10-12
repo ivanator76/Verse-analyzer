@@ -1,6 +1,7 @@
 export interface ModalSpec {
   title: string;
   body?: React.ReactNode;
+  closeLabel?: string;
   buttons: { label: string; primary?: boolean; onClick(): void }[];
 }
 
@@ -23,7 +24,7 @@ export function Modal({ spec, onClose }: { spec: ModalSpec; onClose(): void }) {
               {b.label}
             </button>
           ))}
-          <button onClick={onClose}>取消</button>
+          <button onClick={onClose}>{spec.closeLabel ?? '取消'}</button>
         </div>
       </div>
     </div>

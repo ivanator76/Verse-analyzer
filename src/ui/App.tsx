@@ -75,6 +75,7 @@ export function App() {
     void savePrefs({ viewZoom: z }); // 檢視縮放存在 app 偏好設定，不影響文件（§9.4）
   };
   const [prefsDlg, setPrefsDlg] = useState(false);
+  const [aboutDlg, setAboutDlg] = useState(false);
   const [defaultsDlg, setDefaultsDlg] = useState(false);
   const [prefsTick, setPrefsTick] = useState(0);
   useEffect(() => subscribePrefs(() => { setPrefsTick((n) => n + 1); setZoomState(getPrefs().viewZoom); }), []);
@@ -874,6 +875,7 @@ export function App() {
         <span className="spacer" />
         {layout.warnings.tooTall.length > 0 && <span className="warn">有 {layout.warnings.tooTall.length} 個整節對照區塊超高，無法輸出</span>}
         <button onClick={() => openHelp()} title={k("⌘/")}>說明</button>
+        <button onClick={() => setAboutDlg(true)}>關於</button>
         <button onClick={() => setShowLog((v) => !v)}>{showLog ? '隱藏' : '顯示'}偵錯面板</button>
         <button onClick={() => startOutput('print')} title={k("⌘P")}>列印</button>
         <button onClick={() => startOutput('pdf')}>匯出 PDF</button>
@@ -1105,6 +1107,23 @@ export function App() {
             setSel([]);
             setNotice(k('已用備份版本取代目前文件的內容，可以按 ⌘Z 復原'));
           }}
+        />
+      )}
+      {aboutDlg && (
+        <Modal
+          spec={{
+            title: '關於經文結構分析',
+            body: (
+              <div style={{ lineHeight: 1.8 }}>
+                <div>版本：{__APP_VERSION__}（{hasNative() ? '桌面版' : '網頁版'}）</div>
+                <div>建置時間：{new Date(__BUILD_TIME__).toLocaleString('zh-TW', { hour12: false })}</div>
+                <div>程式碼授權：MIT</div>
+              </div>
+            ),
+            closeLabel: '關閉',
+            buttons: [],
+          }}
+          onClose={() => setAboutDlg(false)}
         />
       )}
       {prefsDlg && (
