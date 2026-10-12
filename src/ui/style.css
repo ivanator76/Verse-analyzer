@@ -1,9 +1,10 @@
 :root { --paper: #fff; --ink: #111; --desk: #e9e9ec; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--desk); font-family: -apple-system, "PingFang TC", sans-serif; color: var(--ink); }
-.topbars { position: sticky; top: 0; z-index: 10; }
-.toolbar { position: static; z-index: 10; display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #ccc; flex-wrap: wrap; }
-.toolbar button, .toolbar select { font: inherit; padding: 3px 10px; }
+.topbars { position: fixed; top: 0; left: 0; right: 0; z-index: 30; background: #fafafa; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.topbars-spacer { height: var(--topH, 120px); }
+.toolbar { position: static; z-index: 10; display: flex; gap: 5px 7px; align-items: center; padding: 5px 12px; background: #fafafa; border-bottom: 1px solid #ccc; flex-wrap: wrap; }
+.toolbar button, .toolbar select { font: inherit; font-size: 13px; padding: 2px 9px; }
 .toolbar .spacer { flex: 1; }
 .toolbar .warn { color: #b00020; font-size: 13px; }
 .statusbar { position: fixed; bottom: 0; left: 0; right: 0; padding: 4px 12px; background: #fafafa; border-top: 1px solid #ccc; font-size: 12px; display: flex; gap: 16px; }
@@ -23,7 +24,7 @@ svg.tree { position: absolute; left: 0; top: 0; overflow: visible; pointer-event
 .screen-only { }
 @page { size: A4 portrait; margin: 0; }
 @media print {
-  .topbars { display: none !important; }
+  .topbars, .topbars-spacer { display: none !important; }
   body { background: #fff; }
   .toolbar, .statusbar, .screen-only { display: none !important; }
   .desk { width: auto !important; min-width: 0 !important; padding: 0 !important; gap: 0; transform: none !important; display: block; }
