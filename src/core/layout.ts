@@ -60,6 +60,9 @@ export interface Line {
 
 export interface LabelBox {
   shared?: boolean;
+  /** 共用標記（以及、相比…）能沿著垂直線移動的範圍（頁面內容區座標）：第一個與最後一個分支之間 */
+  spanTop?: number;
+  spanBottom?: number;
   /** 所屬分支水平線的 y（頁面內容區座標）；整個括號共用的標記（以及、相比）為垂直線中點 */
   lineY: number;
   bracketId: string;
@@ -104,6 +107,8 @@ const COL_PAD = 2;
 const ROW_GAP = 0;
 const TITLE_H = 10.4;
 const NARROW_MM = 40;
+/** 為了躲開標記而加大的列距，每一列最多加多少（mm） */
+const MAX_EXTRA_GAP = 4;
 /** 欄與欄之間的留白（mm）：量測與繪製的文字寬度都要扣掉，兩邊才排得一樣。 */
 export const GUTTER = 1.5;
 
@@ -221,10 +226,19 @@ export function computeLayout(doc: Doc, m: Measurer): Layout {
   // 4. 分頁＋標記碰撞（列距只會加大，所以一定會停）
   const extra = new Map<string, number>();
   let result!: ReturnType<typeof place>;
-  for (let iter = 0; iter < 40; iter++) {
+  for (let iter = 0; iter < 12; iter++) {
     result = place(doc, rows, meas, extra, pg, treeW, colX, labelOf, m, groups, blocks, vcols);
     if (result.warnings.unresolvedLabels === 0 || !result.pendingFix.length) break;
-    for (const id of result.pendingFix) extra.set(id, (extra.get(id) ?? 0) + 1);
+    // 列距只會加大、而且有上限：標記實在躲不開時，寧可讓它和線略微重疊，也不能把行距無限拉大
+    let grew = false;
+    for (const id of result.pendingFix) {
+      const cur = extra.get(id) ?? 0;
+      if (cur < MAX_EXTRA_GAP) {
+        extra.set(id, Math.min(MAX_EXTRA_GAP, cur + 1));
+        grew = true;
+      }
+    }
+    if (!grew) break;
   }
   const { pendingFix: _p, ...rest } = result;
   return {
@@ -385,7 +399,8 @@ function place(
       const yy = mid - pageOf * pg.contentH;
       const h = m.labelHeight;
       labels.push({
-        lineY: yy, shared: true, bracketId: b.id, childId: b.children[0].item.id, page: pageOf, x: col + 0.5, y: yy - h / 2,
+        lineY: yy, shared: true, spanTop: Math.max(0, g1 - pageOf * pg.contentH), spanBottom: Math.min(pg.contentH, g2 - pageOf * pg.contentH),
+        bracketId: b.id, childId: b.children[0].item.id, page: pageOf, x: col + 0.5, y: yy - h / 2,
         w: m.labelWidth(shared.text, false), h, text: shared.text, main: false, pending: false, custom: shared.custom,
       });
     }
@@ -413,6 +428,25 @@ function place(
     if (!l.shared) {
       l.y = l.y > l.lineY ? l.lineY - 0.4 - l.h : l.lineY + 0.4;
       if (!hit(l, labels)) continue;
+    } else {
+      // 共用標記放在垂直線的中點，但中點常常正好有一條水平線通過（例如分支是一個括號時，
+      // 它的接線就在中點）。沿著垂直線往上、往下找沒有碰撞的位置，找得到就不需要加大列距。
+      const step = l.h + 0.6;
+      const lo = (l.spanTop ?? 0) + 0.3;
+      const hi = (l.spanBottom ?? pg.contentH) - l.h - 0.3;
+      let placed = false;
+      for (let k = 1; k <= 40 && !placed; k++) {
+        for (const sign of [1, -1]) {
+          const y = orig + sign * k * step * 0.5;
+          if (y < lo || y > hi) continue;
+          l.y = y;
+          if (!hit(l, labels)) {
+            placed = true;
+            break;
+          }
+        }
+      }
+      if (placed) continue;
     }
     l.y = orig;
     unresolved++;
