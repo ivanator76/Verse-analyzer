@@ -37,7 +37,7 @@ import { getActiveCol, getActiveRowId, getActiveView, getView } from './Editor';
 import type { EditorView } from 'prosemirror-view';
 import { VerseEditor } from './VerseEditor';
 import { parseDoc, serialize } from '../core/file';
-import { firstRow, locate, segsText } from '../core/tree';
+import { firstRow, locate, refColumnIsEmpty, segsText } from '../core/tree';
 import type { Bracket } from '../core/types';
 import { browserApi, hasNative, openHelp, recovery, type RecoveryEntry } from './files';
 import { Modal, type ModalSpec } from './Modal';
@@ -84,6 +84,7 @@ export function App() {
   const [bibleDlg, setBibleDlg] = useState(false);
   const [webNote, setWebNote] = useState(() => !hasNative() && localStorage.getItem('webNoteDismissed') !== '1');
   const [bibleColDlg, setBibleColDlg] = useState(false);
+  const [bibleColTarget, setBibleColTarget] = useState<string | undefined>(undefined);
   const [longEdit, setLongEdit] = useState<{ rowId: string; col: string } | null>(null);
   const [fontsReady, setFontsReady] = useState(false);
   const [printing, setPrinting] = useState(false);
@@ -849,7 +850,7 @@ export function App() {
         <button onClick={() => actions.current.del()} title="先在左側選取行">刪除行</button>
         <span className="sep" />
         <button onClick={() => setLayoutDlg(true)}>版面設定…</button>
-        <button onClick={() => setBibleColDlg(true)} title="把內建的和合本／BSB／SBLGNT 依經節放進對照欄">加入經文對照…</button>
+        <button onClick={() => { setBibleColTarget(undefined); setBibleColDlg(true); }} title="把內建的和合本／BSB／SBLGNT 依經節放進對照欄">加入經文對照…</button>
         <button onClick={() => setRelDlg(true)}>關係表…</button>
         <button onClick={() => setPrefsDlg(true)} title={k("⌘,")}>偏好設定…</button>
         <button onClick={() => tweak((x) => (x.page.orientation = landscape ? 'portrait' : 'landscape'))} title="切換頁面方向">{landscape ? '橫向' : '直向'}</button>
@@ -1003,6 +1004,22 @@ export function App() {
               </div>
             ));
           })}
+          {/* 對照欄的標題（只在螢幕上顯示）：語言與模式；空的欄多一個連結，點了就填入內建經文 */}
+          {layout.refCols.map((c) => {
+            const col = doc.settings.refColumns.find((x) => x.id === c.id)!;
+            const empty = refColumnIsEmpty(doc, c.id);
+            return (
+              <div key={`head-${c.id}`} className="colhead screen-only" style={{ left: `${mg[3] + c.x}mm`, top: `${mg[0] + 4 / S}mm`, width: `${c.w - GUTTER}mm` }}>
+                {langName(col.lang)}・{col.mode === 'verse' ? '整節' : '逐行'}
+                {empty && (
+                  <>
+                    <span className="empty">　空白</span>
+                    <a onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); setBibleColTarget(c.id); setBibleColDlg(true); }}>加入內建經文…</a>
+                  </>
+                )}
+              </div>
+            );
+          })}
           {/* 經文來源與授權（CC BY 要求標示來源）：印在最後一頁的下邊界裡 */}
           {doc.meta.credits && (
             <div className="credits" style={{ left: `${mg[3]}mm`, width: `${layout.page.contentW}mm`, top: `${((layout.pages - 1) * stride + ph - mgP[2] * 0.7) / S}mm` }}>{doc.meta.credits}</div>
@@ -1051,7 +1068,7 @@ export function App() {
             style={{ ...cellStyleFor(longEdit.col), position: 'static', width: '100%', minHeight: '28vh', border: '1px solid #ccd', borderRadius: 4, padding: '6px 8px', background: '#fff' }} />
         </div>
       )}
-      {bibleColDlg && <BibleToColumn doc={h.present} onClose={() => setBibleColDlg(false)} onApply={(spec) => void run(C.addBibleColumn(hRef.current.present, spec))} />}
+      {bibleColDlg && <BibleToColumn doc={h.present} initialTarget={bibleColTarget} onClose={() => setBibleColDlg(false)} onApply={(spec) => void run(C.addBibleColumn(hRef.current.present, spec))} />}
       {bibleDlg && (
         <BibleImport
           onClose={() => setBibleDlg(false)}
@@ -1104,7 +1121,19 @@ export function App() {
           onClose={() => setRelDlg(false)}
         />
       )}
-      {layoutDlg && <LayoutSettings init={doc.settings} onApply={applySettings} onSwap={askSwap} onClose={() => setLayoutDlg(false)} />}
+      {layoutDlg && (
+        <LayoutSettings
+          init={doc.settings}
+          onApply={applySettings}
+          onSwap={askSwap}
+          onApplyAndFill={(st) => {
+            applySettings(st); // 設定馬上生效（歷史會立刻更新），接著開「加入經文對照」，預設選到那個空的欄
+            setBibleColTarget(undefined);
+            setBibleColDlg(true);
+          }}
+          onClose={() => setLayoutDlg(false)}
+        />
+      )}
       {verseEdit && (
         <VerseEditor
           init={verseEdit}

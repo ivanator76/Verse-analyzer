@@ -32,6 +32,7 @@ export function LayoutSettings({
   title = '版面設定',
   hideRefColumns = false,
   onSwap,
+  onApplyAndFill,
 }: {
   init: Settings;
   onApply(s: Settings): void;
@@ -40,6 +41,8 @@ export function LayoutSettings({
   hideRefColumns?: boolean;
   /** 「與分析欄交換」（§8.1）：只對已經存在的逐行對照欄；會關閉這個對話框 */
   onSwap?(colId: string): void;
+  /** 套用設定後，馬上開啟「加入經文對照」把內建經文填進對照欄 */
+  onApplyAndFill?(s: Settings): void;
 }) {
   const [s, setS] = useState<Settings>(() => structuredClone(init));
   const errs = validateSettings(s);
@@ -138,9 +141,19 @@ export function LayoutSettings({
         </button>
         </>)}
 
+        {!hideRefColumns && (
+          <p className="hint" style={{ marginTop: 8 }}>
+            ⚠ 在這裡新增的對照欄一開始是<b>空的</b>。要放內建的和合本、BSB 或 SBLGNT，請按下面的「套用並填入內建經文…」（之後也可以隨時用工具列的「加入經文對照…」）。
+          </p>
+        )}
         {errs.length > 0 && <ul className="errs">{errs.map((e, i) => <li key={i}>{e}</li>)}</ul>}
         <div className="modal-buttons">
           <button className="primary" disabled={errs.length > 0} onClick={() => (onClose(), onApply(s))}>套用</button>
+          {!hideRefColumns && onApplyAndFill && (
+            <button disabled={errs.length > 0 || !s.refColumns.some((c) => c.visible)} title="先套用這些設定，再選書卷、版本，把內建經文依經節填進對照欄" onClick={() => (onClose(), onApplyAndFill(s))}>
+              套用並填入內建經文…
+            </button>
+          )}
           <button onClick={onClose}>取消</button>
         </div>
       </div>

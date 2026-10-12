@@ -82,3 +82,11 @@ export function normalizeSegs(segs: Seg[]): Seg[] {
   }
   return out;
 }
+
+/** 對照欄目前顯示的內容是不是空的：整節模式看各節的譯文，逐行模式看每一行的格子。 */
+export function refColumnIsEmpty(doc: Doc, colId: string): boolean {
+  const col = doc.settings.refColumns.find((c) => c.id === colId);
+  if (!col) return false;
+  if (col.mode === 'verse') return Object.values(col.verses ?? {}).every((v) => segsText(v).trim() === '');
+  return rowsInOrder(doc).every((r) => segsText(r.refs[colId] ?? []).trim() === '');
+}

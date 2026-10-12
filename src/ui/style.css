@@ -172,3 +172,7 @@ body.dragging * { cursor: grabbing !important; }
 .webnote { display: flex; gap: 8px; align-items: center; padding: 6px 12px; background: #e8f1ff; border-bottom: 1px solid #b9d0f5; font-size: 13px; }
 .webnote span { flex: 1; }
 @media print { .webnote { display: none !important; } }
+
+.colhead { position: absolute; font-size: 7.5pt; color: #8a8a96; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
+.colhead .empty { color: #c07000; }
+.colhead a { color: #0a64ff; cursor: pointer; margin-left: 6px; text-decoration: underline; }

@@ -337,3 +337,22 @@ describe('加入經文到既有文件的對照欄', () => {
     expect(C.newColumnWidth(doc)).toBe(0);
   });
 });
+
+describe('對照欄是不是空的（提示「加入內建經文」用）', () => {
+  it('整節欄看各節的譯文；逐行欄看每一行的格子；找不到的欄不算空', async () => {
+    const { refColumnIsEmpty } = await import('../src/core/tree');
+    const doc = userDoc();
+    doc.settings.refColumns = [{ id: 'c1', lang: 'en', visible: true, width: 0.25, mode: 'verse', verses: {} }, { id: 'c2', lang: 'zh-Hant', visible: true, width: 0.25, mode: 'row' }];
+    expect(refColumnIsEmpty(doc, 'c1')).toBe(true);
+    expect(refColumnIsEmpty(doc, 'c2')).toBe(true);
+    expect(refColumnIsEmpty(doc, 'nope')).toBe(false);
+    doc.settings.refColumns[0].verses = { '3:14': [T('x')] };
+    expect(refColumnIsEmpty(doc, 'c1')).toBe(false);
+    rowsInOrder(doc)[1].refs = { c2: [T('逐行的字')] };
+    expect(refColumnIsEmpty(doc, 'c2')).toBe(false);
+    // 整節欄的畫面只顯示各節譯文：逐行格子有字也不算
+    doc.settings.refColumns[0].verses = {};
+    rowsInOrder(doc)[0].refs = { c1: [T('隱藏的逐行內容')] };
+    expect(refColumnIsEmpty(doc, 'c1')).toBe(true);
+  });
+});
